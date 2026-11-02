@@ -310,6 +310,39 @@ a.contact-value:hover { color: var(--signal); }
 }
 .fx .is-lit .reveal { opacity: 1; transform: none; }
 
+/* IVR menu in Contact */
+.ivr { border: 1px solid var(--line); background: var(--panel); padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; }
+.ivr-greet { margin: 0; display: flex; align-items: center; gap: 12px; font-size: 17px; }
+.ivr-keys { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.ivr-key {
+  display: flex; align-items: center; gap: 12px; text-align: left;
+  background: none; border: 1px solid var(--line); padding: 12px 14px; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.ivr-key kbd {
+  flex: none; display: grid; place-items: center; width: 34px; height: 34px;
+  font-family: var(--font-display); font-weight: 900; font-size: 22px; line-height: 1;
+  border: 1px solid var(--signal); color: var(--signal);
+}
+.ivr-key:hover, .ivr-key.hit { border-color: var(--signal); background: var(--signal-soft); }
+.ivr-key.hit kbd { background: var(--signal); color: var(--void); }
+.ivr-tip { margin: 0; }
+.dial-hint { opacity: 0.7; }
+@media (hover: none) { .dial-hint, .ivr-tip { display: none; } }
+
+/* Dialer readout: shows digits as they are dialed */
+.dialer {
+  position: fixed; z-index: 11; left: 50%; top: 18px;
+  display: flex; align-items: baseline; gap: 12px;
+  padding: 10px 16px; background: var(--panel); border: 1px solid var(--signal);
+  box-shadow: 0 0 24px var(--signal-soft);
+  opacity: 0; transform: translate(-50%, -8px); pointer-events: none;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.dialer.show { opacity: 1; transform: translate(-50%, 0); }
+.dialer .label { color: var(--ink); white-space: nowrap; }
+.dialer-num { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.2em; color: var(--signal); }
+
 /* Signal meter: scroll depth + back to top */
 .meter {
   position: fixed; z-index: 10;
@@ -336,7 +369,7 @@ a.contact-value:hover { color: var(--signal); }
   .room-card { max-height: calc(100% - 4px); }
   .log-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .certs, .contact { grid-template-columns: minmax(0, 1fr); }
-  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats, .ivr-keys { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .status .label { font-size: 10px; letter-spacing: 0.1em; }
   .btn-outline.hide-sm { display: none; }
 }

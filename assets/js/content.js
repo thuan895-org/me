@@ -18,6 +18,11 @@ const T = {
     e_cert: "Credentials", t_cert: "Certifications",
     e_contact: "Dial in", t_contact: "Let's talk",
     phone: "Phone", copy: "Copy", copied: "Copied",
+    ivr_greet: "You've reached Thuan. Press a key to continue.",
+    ivr_1: "Send an email", ivr_2: "LinkedIn profile", ivr_3: "Code on GitHub", ivr_0: "Back to stage",
+    ivr_tip: "Your keyboard works too.",
+    hint: "or dial 101–103 on your keyboard",
+    dialing: "Dialing", noExt: "No such extension",
     rooms: {
       migration: {
         title: "Led the move from Java to NestJS",
@@ -66,6 +71,11 @@ const T = {
     e_cert: "Chứng nhận", t_cert: "Chứng chỉ",
     e_contact: "Gọi vào", t_contact: "Kết nối với tôi",
     phone: "Điện thoại", copy: "Sao chép", copied: "Đã chép",
+    ivr_greet: "Bạn đã gọi tới Thuan. Vui lòng bấm một phím.",
+    ivr_1: "Gửi email", ivr_2: "Hồ sơ LinkedIn", ivr_3: "Code trên GitHub", ivr_0: "Quay lại sân khấu",
+    ivr_tip: "Có thể bấm phím số trên bàn phím.",
+    hint: "hoặc quay số 101–103 trên bàn phím",
+    dialing: "Đang quay số", noExt: "Không có máy nhánh này",
     rooms: {
       migration: {
         title: "Dẫn dắt chuyển đổi từ Java sang NestJS",

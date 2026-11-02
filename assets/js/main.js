@@ -159,3 +159,65 @@ applyLang();
     if (btn && !currentRoom()) btn.focus({ preventScroll: true });
   });
 })();
+
+/* ---------- Dialer: type 101–103 anywhere to patch through; IVR keys in Contact ---------- */
+(function () {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const dialer = document.getElementById("dialer");
+  const num = document.getElementById("dialer-num");
+  const state = document.getElementById("dialer-state");
+  const ivr = document.querySelector(".ivr");
+  const codes = Object.fromEntries(ROOMS.map((r) => [EXT[r].replace(/\D/g, ""), r]));
+  let buf = "", wait = 0, hide = 0;
+
+  function show(label, digits) {
+    state.textContent = label; num.textContent = digits;
+    dialer.classList.add("show");
+    clearTimeout(hide);
+    hide = setTimeout(() => dialer.classList.remove("show"), 1800);
+  }
+
+  function toTop() { scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); }
+
+  function press(key) {
+    const d = T[lang];
+    const pressed = ivr.querySelector(`[data-ivr="${key}"]`);
+    if (pressed) { pressed.classList.add("hit"); setTimeout(() => pressed.classList.remove("hit"), 260); }
+    show(d["ivr_" + key], key);
+    if (key === "1") location.href = "mailto:" + document.getElementById("v-email").textContent.trim();
+    else if (key === "2") window.open(document.querySelector('.contact a[href*="linkedin"]').href, "_blank", "noopener");
+    else if (key === "3") window.open(document.querySelector('.contact a[href*="github"]').href, "_blank", "noopener");
+    else if (key === "0") { toTop(); go(null); }
+  }
+
+  // Single-digit IVR keys only count while the menu is on screen.
+  function ivrVisible() {
+    const r = ivr.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight;
+  }
+
+  function resolve() {
+    clearTimeout(wait);
+    const d = T[lang], dialed = buf;
+    buf = "";
+    if (codes[dialed]) { show(`${EXT[codes[dialed]]} · ${d.connected}`, dialed); toTop(); go(codes[dialed]); }
+    else if (dialed.length === 1 && "0123".includes(dialed) && (dialed === "0" || ivrVisible())) press(dialed);
+    else show(d.noExt, dialed);
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.ctrlKey || e.metaKey || e.altKey || !/^[0-9]$/.test(e.key)) return;
+    if (e.target.closest("input, textarea, select, [contenteditable]")) return;
+    buf += e.key;
+    clearTimeout(wait);
+    // Keep listening while the digits could still become an extension.
+    const prefix = Object.keys(codes).some((c) => c.startsWith(buf) && c !== buf);
+    if (prefix) { show(T[lang].dialing, buf + "_"); wait = setTimeout(resolve, 900); }
+    else resolve();
+  });
+
+  ivr.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-ivr]");
+    if (b) press(b.dataset.ivr);
+  });
+})();

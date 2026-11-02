@@ -79,6 +79,7 @@
     <div class="plate"><span>Nguyen Van Thuan</span></div>
     <div class="role">Software Engineer · Java · Node.js/NestJS · AI/MCP</div>
     <div class="label" data-i18n="prompt"></div>
+    <div class="label dial-hint" data-i18n="hint"></div>
   </div>
 
   <div class="room" id="room" aria-live="polite">
@@ -118,17 +119,28 @@
 
     <section class="section" id="contact">
       <div class="sec-head reveal"><span class="label" data-i18n="e_contact"></span><h2 class="sec-title" data-i18n="t_contact"></h2></div>
+      <div class="ivr reveal" style="--i:1">
+        <p class="ivr-greet"><span class="led" aria-hidden="true"></span><span data-i18n="ivr_greet"></span></p>
+        <div class="ivr-keys">
+          <button type="button" class="ivr-key" data-ivr="1"><kbd>1</kbd><span data-i18n="ivr_1"></span></button>
+          <button type="button" class="ivr-key" data-ivr="2"><kbd>2</kbd><span data-i18n="ivr_2"></span></button>
+          <button type="button" class="ivr-key" data-ivr="3"><kbd>3</kbd><span data-i18n="ivr_3"></span></button>
+          <button type="button" class="ivr-key" data-ivr="0"><kbd>0</kbd><span data-i18n="ivr_0"></span></button>
+        </div>
+        <p class="label ivr-tip" data-i18n="ivr_tip"></p>
+      </div>
       <div class="contact">
-        <div class="contact-item reveal" style="--i:1"><div><span class="label">Email</span><span class="contact-value" id="v-email">nguyenvanthuan885@gmail.com</span></div><button class="copy" type="button" data-copy="v-email" data-i18n="copy"></button></div>
-        <div class="contact-item reveal" style="--i:2"><div><span class="label" data-i18n="phone"></span><span class="contact-value" id="v-phone">0769 730 662</span></div><button class="copy" type="button" data-copy="v-phone" data-i18n="copy"></button></div>
-        <div class="contact-item reveal" style="--i:3"><div><span class="label">LinkedIn</span><a class="contact-value" href="https://www.linkedin.com/in/thuan895/" target="_blank" rel="noopener">linkedin.com/in/thuan895</a></div></div>
-        <div class="contact-item reveal" style="--i:4"><div><span class="label">GitHub</span><a class="contact-value" href="https://github.com/thuan895" target="_blank" rel="noopener">github.com/thuan895</a></div></div>
+        <div class="contact-item reveal" style="--i:2"><div><span class="label">Email</span><span class="contact-value" id="v-email">nguyenvanthuan885@gmail.com</span></div><button class="copy" type="button" data-copy="v-email" data-i18n="copy"></button></div>
+        <div class="contact-item reveal" style="--i:3"><div><span class="label" data-i18n="phone"></span><span class="contact-value" id="v-phone">0769 730 662</span></div><button class="copy" type="button" data-copy="v-phone" data-i18n="copy"></button></div>
+        <div class="contact-item reveal" style="--i:4"><div><span class="label">LinkedIn</span><a class="contact-value" href="https://www.linkedin.com/in/thuan895/" target="_blank" rel="noopener">linkedin.com/in/thuan895</a></div></div>
+        <div class="contact-item reveal" style="--i:5"><div><span class="label">GitHub</span><a class="contact-value" href="https://github.com/thuan895" target="_blank" rel="noopener">github.com/thuan895</a></div></div>
       </div>
     </section>
   </div>
   <footer class="wrap foot"><span class="label">© 2026 Nguyen Van Thuan · Da Nang, Vietnam</span></footer>
 </main>
 
+<div class="dialer" id="dialer" aria-live="polite"><span class="label" id="dialer-state"></span><span class="dialer-num" id="dialer-num"></span></div>
 <button class="meter" type="button" id="meter" data-i18n-label="toTop">
   <i></i><i></i><i></i><i></i><i></i>
 </button>
