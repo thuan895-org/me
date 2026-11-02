@@ -1,0 +1,157 @@
+# me — Trang web cá nhân của Nguyen Van Thuan
+
+Trang portfolio/CV online cho **Nguyen Van Thuan** — Software Engineer (Java · Node.js/NestJS · CPaaS · AI/MCP), Đà Nẵng.
+
+Trang là **static site thuần** (HTML + CSS + JavaScript, không framework, không build step). Mở `index.html` là chạy.
+
+---
+
+## 1. Chạy thử ở máy
+
+```bash
+cd ~/FREE/me
+
+# Cách 1: mở thẳng file
+open index.html
+
+# Cách 2 (khuyên dùng, giống môi trường thật hơn): chạy server tĩnh
+npx serve .            # hoặc: python3 -m http.server 5173
+# rồi mở http://localhost:3000 (serve) hoặc http://localhost:5173 (python)
+```
+
+Không cần `npm install`. Font tải từ Google Fonts nên cần có mạng để thấy đúng kiểu chữ.
+
+---
+
+## 2. Cấu trúc thư mục
+
+```
+me/
+├── index.html              # Khung trang: sân khấu (stage), 3 máy nhánh, phòng chi tiết, các section CV
+├── assets/
+│   ├── css/style.css       # Toàn bộ style. Design tokens nằm ở khối :root đầu file
+│   └── js/
+│       ├── content.js      # TOÀN BỘ NỘI DUNG chữ (EN + VI): ROOMS, EXT, T
+│       ├── main.js         # Logic: đổi ngôn ngữ, điều hướng phòng theo #hash, nút copy
+│       └── stage-fx.js     # Hiệu ứng canvas: bụi bay + phản chiếu đèn trên sàn ướt
+├── CLAUDE.md               # Quy ước ngắn gọn cho Claude Code
+└── README.md
+```
+
+Thứ tự nạp script ở cuối `index.html` là bắt buộc: `content.js` → `main.js` → `stage-fx.js` (main.js dùng biến toàn cục `ROOMS`, `EXT`, `T` từ content.js).
+
+---
+
+## 3. Ý tưởng thiết kế
+
+Lấy cảm hứng **cách dàn dựng** của trang adidas CHILE20 (sân khấu tối một màn, cột đèn phát sáng, sàn ướt phản chiếu, chọn một "vật trưng bày" để vào phòng riêng). **Không** dùng logo, chữ, màu hay hình ảnh của adidas — phần nhận diện là của riêng Thuan.
+
+Chủ đề riêng: **tổng đài (switchboard)** — vì Thuan làm nền tảng CPaaS/tổng đài.
+
+| Yếu tố | Ý nghĩa |
+|---|---|
+| 3 "máy nhánh" EXT 101 / 102 / 103 | 3 mảng năng lực: Migration · Tổng đài (CPaaS) · AI agents (MCP) |
+| Đèn LED nhấp nháy + "Line open" | Trạng thái đang nhận việc part-time/freelance |
+| "Select an extension to connect" | Lời mời bấm vào máy nhánh (tương đương "select a product") |
+| "Connected · EXT 10x" | Trạng thái khi đã vào phòng |
+| "Call log" | Section kinh nghiệm |
+| Biển tên đóng khung, chữ nghiêng | Logo tên |
+
+Nguyên tắc: **nhà tuyển dụng lướt 30 giây vẫn thấy đủ** — tên, vai trò, liên hệ ở màn đầu; CV đầy đủ nằm ngay bên dưới sân khấu. Phòng chi tiết chỉ là phần đào sâu thêm.
+
+### Design tokens (`assets/css/style.css`, khối `:root`)
+
+| Token | Giá trị | Dùng cho |
+|---|---|---|
+| `--void` | `#040708` | Nền trang |
+| `--stage` | `#071012` | Nền sân khấu |
+| `--panel` | `#0b1618` | Thẻ (chứng chỉ) |
+| `--line` | `#1c2b2d` | Viền, đường kẻ |
+| `--ink` | `#e9f2ef` | Chữ chính |
+| `--mute` | `#84948f` | Chữ phụ, nhãn |
+| `--signal` | `#43f5ac` | **Màu nhấn duy nhất** — xanh tín hiệu |
+| `--white-light` | `#f4fbf8` | Ống đèn trắng |
+
+Font:
+- `--font-display`: **Big Shoulders Display** 900 — tên, tiêu đề (in hoa)
+- `--font-body`: **IBM Plex Sans** — chữ đọc
+- `--font-mono`: **IBM Plex Mono** — nhãn in hoa nhỏ, số EXT, ngày tháng
+
+Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải lấy từ token, không viết mã màu rời trong component (trừ vài `rgba` của chính `--signal`/`--white-light`).
+
+---
+
+## 4. Cách trang hoạt động
+
+### Điều hướng phòng (hash routing)
+- `#migration`, `#cpaas`, `#ai` → mở phòng tương ứng (có thể gửi link thẳng tới một phòng).
+- Không có hash hoặc `#stage` → về sân khấu.
+- Phím `Esc` hoặc nút "Back to stage" để quay lại; nút "Next extension" sang phòng kế.
+- Khi ở trong phòng, `<body>` có thuộc tính `data-room="..."`; CSS dựa vào đó để ẩn sân khấu, hiện phòng (xem các rule `body[data-room] ...`).
+
+### Đa ngôn ngữ EN / VI
+- Phần tử có `data-i18n="key"` được điền nội dung từ `T[lang][key]` (dùng `innerHTML`, nên được phép có `<b>`).
+- Nội dung phòng (`T[lang].rooms`) và call log (`T[lang].log`) được render bằng JS trong `main.js`.
+- Ngôn ngữ đã chọn được nhớ trong `localStorage` (bọc try/catch, lỗi thì mặc định EN).
+
+### Hiệu ứng (`stage-fx.js`)
+- Canvas phủ toàn sân khấu: hạt bụi bay chậm + vệt phản chiếu dưới mỗi ống đèn.
+- Mỗi frame đọc vị trí các ống đèn bằng `getBoundingClientRect()` nên tự khớp khi đổi kích thước hoặc vào phòng.
+- Tôn trọng `prefers-reduced-motion`: tắt animation, chỉ vẽ một frame tĩnh.
+
+---
+
+## 5. Các việc chỉnh sửa thường gặp
+
+**Sửa nội dung chữ** → chỉ sửa `assets/js/content.js`. Luôn sửa **cả `en` và `vi`**.
+
+**Thêm một phòng mới (EXT 104):**
+1. `content.js`: thêm id vào `ROOMS`, thêm số vào `EXT`, thêm khóa `n_<id>` và object `rooms.<id>` cho cả `en` và `vi`.
+2. `index.html`: nhân bản một `<button class="exhibit" data-room="...">` trong `.floor`, đổi SVG glyph và nhãn.
+3. `style.css`: `.floor` đang `repeat(3, ...)` → đổi thành 4, kiểm tra lại ở màn hình 400px.
+
+**Đổi màu nhấn** → sửa `--signal` và `--signal-soft` trong `:root`, rồi tìm `67, 245, 172` (giá trị RGB của màu cũ) trong `style.css` và `stage-fx.js` để đổi theo.
+
+**Chứng chỉ / liên hệ** → nằm thẳng trong `index.html` (section Certifications và `#contact`).
+
+---
+
+## 6. Deploy (miễn phí)
+
+Static site nên deploy được ở bất kỳ đâu:
+
+- **GitHub Pages**: push repo lên `github.com/thuan895/me` (hoặc đổi tên repo thành `thuan895.github.io` để có domain `https://thuan895.github.io`) → Settings → Pages → Deploy from branch `main`, thư mục `/ (root)`.
+- **Vercel / Netlify / Cloudflare Pages**: import repo, Framework = "Other", Build command để trống, Output dir = `.`
+
+Sau khi có link, thêm vào CV, LinkedIn (phần Contact info → Website) và GitHub profile.
+
+---
+
+## 7. Việc còn lại (TODO)
+
+- [ ] Deploy lên GitHub Pages và gắn link vào CV/LinkedIn.
+- [ ] Ảnh Open Graph (`og:image`) 1200×630 để khi chia sẻ link có ảnh đẹp.
+- [ ] Favicon.
+- [ ] Bản CV PDF cùng phong cách + nút "Download CV" (đặt file vào `assets/` và link tới).
+- [ ] Thêm số liệu cụ thể cho phòng Migration nếu có (ví dụ % giảm tài nguyên server).
+- [ ] Repo GitHub mẫu (MCP server bằng NestJS) rồi thêm phòng/khối "Projects" trỏ tới.
+- [ ] Cân nhắc ẩn số điện thoại trên bản public (chỉ giữ email).
+- [ ] Kiểm tra lại trên Safari iOS và Android (hiệu ứng `backdrop-filter`, canvas).
+
+---
+
+## 8. Tiếp tục bằng Claude Code
+
+```bash
+cd ~/FREE/me
+claude
+```
+
+Gợi ý câu lệnh để bắt đầu:
+
+- `Đọc README.md và CLAUDE.md, rồi chạy trang bằng npx serve và kiểm tra giao diện ở 400px và 1440px.`
+- `Thêm favicon SVG và og:image theo đúng design tokens.`
+- `Thêm nút Download CV, file đặt ở assets/cv/Nguyen-Van-Thuan-CV.pdf.`
+- `Hướng dẫn và thiết lập deploy lên GitHub Pages.`
+
+Claude Code sẽ tự đọc `CLAUDE.md` khi mở trong thư mục này.

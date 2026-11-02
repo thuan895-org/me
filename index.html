@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nguyen Van Thuan — Software Engineer</title>
+<meta name="description" content="Nguyen Van Thuan — backend engineer (Java, Node.js/NestJS) building cloud communications (CPaaS) and AI/MCP integrations. Da Nang, Vietnam.">
+<meta property="og:title" content="Nguyen Van Thuan — Software Engineer">
+<meta property="og:description" content="Backend · CPaaS · AI/MCP. Da Nang, Vietnam.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#040708">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<section class="stage" id="stage" aria-label="Stage">
+  <canvas id="fx" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="status">
+      <span class="led" aria-hidden="true"></span>
+      <span class="label" data-i18n="status"></span>
+    </div>
+    <div class="top-actions">
+      <button class="btn-outline hide-sm" type="button" id="to-contact" data-i18n="contactBtn"></button>
+      <div class="lang" role="group" aria-label="Language">
+        <button type="button" data-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-lang="vi" aria-pressed="false">VI</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="floor" id="floor">
+    <button class="exhibit" type="button" data-room="migration">
+      <span class="tube" aria-hidden="true"><i></i><i></i><i></i>
+        <span class="glyph"><svg viewBox="0 0 64 64">
+          <rect x="4" y="14" width="18" height="10"/><rect x="4" y="28" width="18" height="10"/><rect x="4" y="42" width="18" height="10"/>
+          <path d="M27 33h12m-5-5 5 5-5 5"/>
+          <path d="M51 12l10 6v12l-10 6-10-6V18z"/><path d="M51 34l10 6v12l-10 6-10-6V40z"/>
+        </svg></span>
+      </span>
+      <span class="exhibit-meta">
+        <span class="exhibit-ext">EXT 101</span>
+        <span class="exhibit-name" data-i18n="n_migration"></span>
+        <span class="exhibit-tag">Java → NestJS</span>
+      </span>
+    </button>
+    <button class="exhibit" type="button" data-room="cpaas">
+      <span class="tube" aria-hidden="true"><i></i><i></i><i></i>
+        <span class="glyph"><svg viewBox="0 0 64 64">
+          <path d="M6 32h6"/><path d="M16 24v16"/><path d="M22 14v36"/><path d="M28 22v20"/><path d="M34 8v48"/><path d="M40 18v28"/><path d="M46 26v12"/><path d="M52 30h6"/>
+        </svg></span>
+      </span>
+      <span class="exhibit-meta">
+        <span class="exhibit-ext">EXT 102</span>
+        <span class="exhibit-name" data-i18n="n_cpaas"></span>
+        <span class="exhibit-tag">Voice · SMS · RCS</span>
+      </span>
+    </button>
+    <button class="exhibit" type="button" data-room="ai">
+      <span class="tube" aria-hidden="true"><i></i><i></i><i></i>
+        <span class="glyph"><svg viewBox="0 0 64 64">
+          <circle cx="32" cy="32" r="8"/>
+          <path d="M32 24V10M38 37l12 8M26 37l-12 8"/>
+          <circle class="solid" cx="32" cy="8" r="4"/><circle class="solid" cx="53" cy="47" r="4"/><circle class="solid" cx="11" cy="47" r="4"/>
+        </svg></span>
+      </span>
+      <span class="exhibit-meta">
+        <span class="exhibit-ext">EXT 103</span>
+        <span class="exhibit-name" data-i18n="n_ai"></span>
+        <span class="exhibit-tag">MCP · Agents</span>
+      </span>
+    </button>
+  </div>
+
+  <div class="nameplate">
+    <div class="plate"><span>Nguyen Van Thuan</span></div>
+    <div class="role">Software Engineer · Java · Node.js/NestJS · AI/MCP</div>
+    <div class="label" data-i18n="prompt"></div>
+  </div>
+
+  <div class="room" id="room" aria-live="polite">
+    <div class="room-light" aria-hidden="true">
+      <span class="tube"><i></i><i></i><i></i><span class="glyph" id="room-glyph"></span></span>
+    </div>
+    <article class="room-card" id="room-card"></article>
+  </div>
+</section>
+
+<main>
+  <div class="wrap">
+    <section class="section">
+      <div class="sec-head"><span class="label" data-i18n="e_about"></span></div>
+      <p class="summary" data-i18n="summary"></p>
+    </section>
+
+    <section class="section">
+      <div class="sec-head"><span class="label" data-i18n="e_log"></span><h2 class="sec-title" data-i18n="t_log"></h2></div>
+      <div class="log" id="log"></div>
+    </section>
+
+    <section class="section">
+      <div class="sec-head"><span class="label" data-i18n="e_cert"></span><h2 class="sec-title" data-i18n="t_cert"></h2></div>
+      <div class="certs">
+        <div class="cert"><span class="cert-name">Microsoft Certified: DevOps Engineer Expert</span><span class="cert-meta">Microsoft · Apr 2022</span></div>
+        <div class="cert"><span class="cert-name">Microsoft Certified: Azure Developer Associate</span><span class="cert-meta">Microsoft · Apr 2022</span></div>
+        <div class="cert"><span class="cert-name">Microsoft Certified: Azure Administrator Associate</span><span class="cert-meta">Microsoft · Jun 2022</span></div>
+      </div>
+    </section>
+
+    <section class="section" id="contact">
+      <div class="sec-head"><span class="label" data-i18n="e_contact"></span><h2 class="sec-title" data-i18n="t_contact"></h2></div>
+      <div class="contact">
+        <div class="contact-item"><div><span class="label">Email</span><span class="contact-value" id="v-email">nguyenvanthuan885@gmail.com</span></div><button class="copy" type="button" data-copy="v-email" data-i18n="copy"></button></div>
+        <div class="contact-item"><div><span class="label" data-i18n="phone"></span><span class="contact-value" id="v-phone">0769 730 662</span></div><button class="copy" type="button" data-copy="v-phone" data-i18n="copy"></button></div>
+        <div class="contact-item"><div><span class="label">LinkedIn</span><a class="contact-value" href="https://www.linkedin.com/in/thuan895/" target="_blank" rel="noopener">linkedin.com/in/thuan895</a></div></div>
+        <div class="contact-item"><div><span class="label">GitHub</span><a class="contact-value" href="https://github.com/thuan895" target="_blank" rel="noopener">github.com/thuan895</a></div></div>
+      </div>
+    </section>
+  </div>
+  <footer class="wrap foot"><span class="label">© 2026 Nguyen Van Thuan · Da Nang, Vietnam</span></footer>
+</main>
+
+<script src="assets/js/content.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/stage-fx.js"></script>
+</body>
+</html>
