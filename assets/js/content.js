@@ -10,6 +10,8 @@ const T = {
     n_migration: "Migration", n_cpaas: "Telecom", n_ai: "AI agents",
     connected: "Connected", back: "Back to stage", next: "Next extension",
     stackLabel: "Stack",
+    s_years: "Years in engineering", s_cpaas: "Years on a CPaaS platform", s_services: "Java services moved to NestJS", s_certs: "Microsoft certifications",
+    toTop: "Back to stage",
     e_about: "Profile",
     summary: "Backend engineer with <b>5+ years</b> of experience, including <b>4 years</b> building a cloud communications platform for businesses in several countries. I led the migration of <b>4+ Java microservices to NestJS</b> in production, and I build <b>MCP servers</b> that let AI agents work on real systems.",
     e_log: "Call log", t_log: "Experience",
@@ -43,7 +45,7 @@ const T = {
       }
     },
     log: [
-      { when: "Oct 2022 — Present", role: "Software Developer", org: "Hoiio · Remote", note: "Backend for a cloud communications (CPaaS) platform. Led the Java-to-NestJS migration and built MCP servers for AI agents." },
+      { now: true, when: "Oct 2022 — Present", role: "Software Developer", org: "Hoiio · Remote", note: "Backend for a cloud communications (CPaaS) platform. Led the Java-to-NestJS migration and built MCP servers for AI agents." },
       { when: "Jun 2021 — Oct 2022", role: "Mobile Application Developer", org: "FPT Software · Da Nang", note: "Retail and commerce mobile apps for Japanese clients, built with React Native and Java." },
       { when: "2018 — 2022", role: "B.S. Software Engineering", org: "FPT University", note: "" },
       { when: "2015 — 2018", role: "Informatics specialized class", org: "Le Thanh Tong High School for the Gifted", note: "" }
@@ -56,6 +58,8 @@ const T = {
     n_migration: "Migration", n_cpaas: "Tổng đài", n_ai: "AI agent",
     connected: "Đã kết nối", back: "Quay lại sân khấu", next: "Máy nhánh tiếp theo",
     stackLabel: "Công nghệ",
+    s_years: "Năm làm kỹ sư", s_cpaas: "Năm trên nền tảng CPaaS", s_services: "Service Java chuyển sang NestJS", s_certs: "Chứng chỉ Microsoft",
+    toTop: "Quay lại sân khấu",
     e_about: "Giới thiệu",
     summary: "Kỹ sư backend với <b>hơn 5 năm</b> kinh nghiệm, trong đó <b>4 năm</b> xây dựng nền tảng liên lạc đám mây cho doanh nghiệp ở nhiều quốc gia. Tôi dẫn dắt việc chuyển <b>hơn 4 microservice Java sang NestJS</b> đã chạy production, và xây <b>MCP server</b> giúp AI agent làm việc trên hệ thống thật.",
     e_log: "Nhật ký", t_log: "Kinh nghiệm",
@@ -89,7 +93,7 @@ const T = {
       }
     },
     log: [
-      { when: "10/2022 — Nay", role: "Software Developer", org: "Hoiio · Remote", note: "Backend cho nền tảng liên lạc đám mây (CPaaS). Dẫn dắt chuyển đổi Java sang NestJS và xây MCP server cho AI agent." },
+      { now: true, when: "10/2022 — Nay", role: "Software Developer", org: "Hoiio · Remote", note: "Backend cho nền tảng liên lạc đám mây (CPaaS). Dẫn dắt chuyển đổi Java sang NestJS và xây MCP server cho AI agent." },
       { when: "06/2021 — 10/2022", role: "Mobile Application Developer", org: "FPT Software · Đà Nẵng", note: "Ứng dụng di động bán lẻ, thương mại cho khách hàng Nhật, dùng React Native và Java." },
       { when: "2018 — 2022", role: "Cử nhân Kỹ thuật phần mềm", org: "Đại học FPT", note: "" },
       { when: "2015 — 2018", role: "Lớp chuyên Tin", org: "THPT Chuyên Lê Thánh Tông", note: "" }

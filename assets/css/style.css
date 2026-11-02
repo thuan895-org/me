@@ -268,6 +268,67 @@ a.contact-value:hover { color: var(--signal); }
 .copy:hover { color: var(--ink); border-color: var(--ink); }
 .foot { padding-block: 24px 32px; border-top: 1px solid var(--line); }
 
+/* Stats */
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--line); }
+.stat { display: grid; gap: 6px; align-content: start; padding: 22px 16px 4px 0; }
+.stat-num {
+  font-family: var(--font-display); font-weight: 900; line-height: 1;
+  font-size: clamp(44px, 7vw, 72px); color: var(--signal); font-variant-numeric: tabular-nums;
+}
+
+/* Expandable call log */
+.log-when { display: flex; align-items: center; align-self: start; gap: 10px; }
+.log-toggle {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; row-gap: 4px;
+  width: 100%; padding: 0; background: none; border: 0; text-align: left; cursor: pointer;
+}
+.log-toggle .log-org { grid-column: 1; }
+.log-plus { grid-column: 2; grid-row: 1 / span 2; align-self: center; position: relative; width: 14px; height: 14px; }
+.log-plus::before, .log-plus::after {
+  content: ""; position: absolute; left: 0; top: 6px; width: 14px; height: 2px;
+  background: var(--mute); transition: transform 0.35s, background 0.2s;
+}
+.log-plus::after { transform: rotate(90deg); }
+.log-toggle:hover .log-plus::before, .log-toggle:hover .log-plus::after { background: var(--signal); }
+.log-toggle[aria-expanded="true"] .log-plus::after { transform: rotate(0deg); }
+.log-toggle:hover .log-role { color: var(--signal); }
+.log-detail { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.45s cubic-bezier(.2,.7,.2,1); }
+.log-detail > div { overflow: hidden; }
+.log-toggle[aria-expanded="true"] + .log-detail { grid-template-rows: 1fr; }
+
+/* Scroll reveal: each section patches in with a signal line, then its parts follow in order */
+.section::before {
+  content: ""; height: 1px;
+  background: linear-gradient(90deg, var(--signal), transparent) no-repeat 0 0 / 0% 100%, var(--line);
+  transition: background-size 1.1s cubic-bezier(.2,.7,.2,1);
+}
+.section.is-lit::before { background-size: 100% 100%; }
+.fx .reveal {
+  opacity: 0; transform: translateY(18px);
+  transition: opacity 0.6s, transform 0.7s cubic-bezier(.2,.7,.2,1);
+  transition-delay: calc(var(--i, 0) * 90ms + 150ms);
+}
+.fx .is-lit .reveal { opacity: 1; transform: none; }
+
+/* Signal meter: scroll depth + back to top */
+.meter {
+  position: fixed; z-index: 10;
+  right: var(--gutter-r); bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  width: 44px; height: 44px; padding: 10px 9px;
+  display: flex; align-items: flex-end; gap: 3px;
+  background: var(--panel); border: 1px solid var(--line); cursor: pointer;
+  opacity: 0; transform: translateY(8px); transition: opacity 0.3s, transform 0.3s, border-color 0.2s;
+}
+.meter.show { opacity: 1; transform: none; }
+.meter:hover { border-color: var(--signal); }
+.meter i { flex: 1; background: var(--line); transition: background 0.3s, box-shadow 0.3s; }
+.meter i:nth-child(1) { height: 20%; }
+.meter i:nth-child(2) { height: 40%; }
+.meter i:nth-child(3) { height: 60%; }
+.meter i:nth-child(4) { height: 80%; }
+.meter i:nth-child(5) { height: 100%; }
+.meter i.on { background: var(--signal); box-shadow: 0 0 8px var(--signal-soft); }
+
 /* ---------- Narrow ---------- */
 @media (max-width: 760px) {
   .room { grid-template-columns: minmax(0, 1fr); inset: 76px 0 0 0; align-items: start; }
@@ -275,6 +336,7 @@ a.contact-value:hover { color: var(--signal); }
   .room-card { max-height: calc(100% - 4px); }
   .log-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
   .certs, .contact { grid-template-columns: minmax(0, 1fr); }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .status .label { font-size: 10px; letter-spacing: 0.1em; }
   .btn-outline.hide-sm { display: none; }
 }
@@ -285,5 +347,5 @@ a.contact-value:hover { color: var(--signal); }
   .tube i:nth-child(2) { width: 9px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
 }

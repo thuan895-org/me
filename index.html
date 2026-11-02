@@ -92,36 +92,46 @@
 <main>
   <div class="wrap">
     <section class="section">
-      <div class="sec-head"><span class="label" data-i18n="e_about"></span></div>
-      <p class="summary" data-i18n="summary"></p>
+      <div class="sec-head reveal"><span class="label" data-i18n="e_about"></span></div>
+      <p class="summary reveal" style="--i:1" data-i18n="summary"></p>
+      <div class="stats">
+        <div class="stat reveal" style="--i:2"><span class="stat-num" data-count="5" data-suffix="+">5+</span><span class="label" data-i18n="s_years"></span></div>
+        <div class="stat reveal" style="--i:3"><span class="stat-num" data-count="4">4</span><span class="label" data-i18n="s_cpaas"></span></div>
+        <div class="stat reveal" style="--i:4"><span class="stat-num" data-count="4" data-suffix="+">4+</span><span class="label" data-i18n="s_services"></span></div>
+        <div class="stat reveal" style="--i:5"><span class="stat-num" data-count="3">3</span><span class="label" data-i18n="s_certs"></span></div>
+      </div>
     </section>
 
     <section class="section">
-      <div class="sec-head"><span class="label" data-i18n="e_log"></span><h2 class="sec-title" data-i18n="t_log"></h2></div>
+      <div class="sec-head reveal"><span class="label" data-i18n="e_log"></span><h2 class="sec-title" data-i18n="t_log"></h2></div>
       <div class="log" id="log"></div>
     </section>
 
     <section class="section">
-      <div class="sec-head"><span class="label" data-i18n="e_cert"></span><h2 class="sec-title" data-i18n="t_cert"></h2></div>
+      <div class="sec-head reveal"><span class="label" data-i18n="e_cert"></span><h2 class="sec-title" data-i18n="t_cert"></h2></div>
       <div class="certs">
-        <div class="cert"><span class="cert-name">Microsoft Certified: DevOps Engineer Expert</span><span class="cert-meta">Microsoft · Apr 2022</span></div>
-        <div class="cert"><span class="cert-name">Microsoft Certified: Azure Developer Associate</span><span class="cert-meta">Microsoft · Apr 2022</span></div>
-        <div class="cert"><span class="cert-name">Microsoft Certified: Azure Administrator Associate</span><span class="cert-meta">Microsoft · Jun 2022</span></div>
+        <div class="cert reveal" style="--i:1"><span class="cert-name">Microsoft Certified: DevOps Engineer Expert</span><span class="cert-meta">Microsoft · Apr 2022</span></div>
+        <div class="cert reveal" style="--i:2"><span class="cert-name">Microsoft Certified: Azure Developer Associate</span><span class="cert-meta">Microsoft · Apr 2022</span></div>
+        <div class="cert reveal" style="--i:3"><span class="cert-name">Microsoft Certified: Azure Administrator Associate</span><span class="cert-meta">Microsoft · Jun 2022</span></div>
       </div>
     </section>
 
     <section class="section" id="contact">
-      <div class="sec-head"><span class="label" data-i18n="e_contact"></span><h2 class="sec-title" data-i18n="t_contact"></h2></div>
+      <div class="sec-head reveal"><span class="label" data-i18n="e_contact"></span><h2 class="sec-title" data-i18n="t_contact"></h2></div>
       <div class="contact">
-        <div class="contact-item"><div><span class="label">Email</span><span class="contact-value" id="v-email">nguyenvanthuan885@gmail.com</span></div><button class="copy" type="button" data-copy="v-email" data-i18n="copy"></button></div>
-        <div class="contact-item"><div><span class="label" data-i18n="phone"></span><span class="contact-value" id="v-phone">0769 730 662</span></div><button class="copy" type="button" data-copy="v-phone" data-i18n="copy"></button></div>
-        <div class="contact-item"><div><span class="label">LinkedIn</span><a class="contact-value" href="https://www.linkedin.com/in/thuan895/" target="_blank" rel="noopener">linkedin.com/in/thuan895</a></div></div>
-        <div class="contact-item"><div><span class="label">GitHub</span><a class="contact-value" href="https://github.com/thuan895" target="_blank" rel="noopener">github.com/thuan895</a></div></div>
+        <div class="contact-item reveal" style="--i:1"><div><span class="label">Email</span><span class="contact-value" id="v-email">nguyenvanthuan885@gmail.com</span></div><button class="copy" type="button" data-copy="v-email" data-i18n="copy"></button></div>
+        <div class="contact-item reveal" style="--i:2"><div><span class="label" data-i18n="phone"></span><span class="contact-value" id="v-phone">0769 730 662</span></div><button class="copy" type="button" data-copy="v-phone" data-i18n="copy"></button></div>
+        <div class="contact-item reveal" style="--i:3"><div><span class="label">LinkedIn</span><a class="contact-value" href="https://www.linkedin.com/in/thuan895/" target="_blank" rel="noopener">linkedin.com/in/thuan895</a></div></div>
+        <div class="contact-item reveal" style="--i:4"><div><span class="label">GitHub</span><a class="contact-value" href="https://github.com/thuan895" target="_blank" rel="noopener">github.com/thuan895</a></div></div>
       </div>
     </section>
   </div>
   <footer class="wrap foot"><span class="label">© 2026 Nguyen Van Thuan · Da Nang, Vietnam</span></footer>
 </main>
+
+<button class="meter" type="button" id="meter" data-i18n-label="toTop">
+  <i></i><i></i><i></i><i></i><i></i>
+</button>
 
 <script src="assets/js/content.js"></script>
 <script src="assets/js/main.js"></script>

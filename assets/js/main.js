@@ -8,18 +8,34 @@ function applyLang() {
   const d = T[lang];
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = d[el.dataset.i18n]; });
+  document.querySelectorAll("[data-i18n-label]").forEach((el) => { el.setAttribute("aria-label", d[el.dataset.i18nLabel]); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
-  document.getElementById("log").innerHTML = d.log.map((r) => `
-    <div class="log-row">
-      <div class="log-when">${esc(r.when)}</div>
+  document.getElementById("log").innerHTML = d.log.map((r, i) => {
+    const head = `<span class="log-role">${esc(r.role)}</span><span class="log-org">${esc(r.org)}</span>`;
+    const open = openLog.has(i);
+    return `
+    <div class="log-row reveal" style="--i:${i + 1}">
+      <div class="log-when">${r.now ? `<span class="led" aria-hidden="true"></span>` : ""}${esc(r.when)}</div>
       <div class="log-what">
-        <span class="log-role">${esc(r.role)}</span>
-        <span class="log-org">${esc(r.org)}</span>
-        ${r.note ? `<p class="log-note">${esc(r.note)}</p>` : ""}
+        ${r.note ? `
+        <button type="button" class="log-toggle" data-log="${i}" aria-expanded="${open}" aria-controls="log-d${i}">${head}<span class="log-plus" aria-hidden="true"></span></button>
+        <div class="log-detail" id="log-d${i}"${open ? "" : " inert"}><div><p class="log-note">${esc(r.note)}</p></div></div>` : head}
       </div>
-    </div>`).join("");
+    </div>`;
+  }).join("");
   renderRoom();
 }
+
+// Call log rows that are expanded; the current job starts open.
+const openLog = new Set([0]);
+document.getElementById("log").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-log]");
+  if (!b) return;
+  const i = Number(b.dataset.log), open = !openLog.has(i);
+  open ? openLog.add(i) : openLog.delete(i);
+  b.setAttribute("aria-expanded", String(open));
+  document.getElementById(`log-d${i}`).inert = !open;
+});
 
 function currentRoom() {
   const h = location.hash.slice(1);
@@ -89,3 +105,57 @@ document.querySelectorAll(".copy").forEach((b) => b.addEventListener("click", ()
 }));
 
 applyLang();
+
+/* ---------- Scroll: sections "patch in" as they reach the viewport ---------- */
+(function () {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sections = document.querySelectorAll("main .section");
+  const counters = document.querySelectorAll("[data-count]");
+
+  function count(el) {
+    const to = Number(el.dataset.count), suf = el.dataset.suffix || "", t0 = performance.now();
+    const step = (t) => {
+      const k = Math.min((t - t0) / 1200, 1);
+      el.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))) + suf;
+      if (k < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  if (reduce || !("IntersectionObserver" in window)) {
+    sections.forEach((s) => s.classList.add("is-lit"));
+  } else {
+    document.documentElement.classList.add("fx");
+    counters.forEach((el) => { el.textContent = "0" + (el.dataset.suffix || ""); });
+    const io = new IntersectionObserver((entries) => entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      en.target.classList.add("is-lit");
+      en.target.querySelectorAll("[data-count]").forEach(count);
+      io.unobserve(en.target);
+    }), { rootMargin: "0px 0px -12% 0px" });
+    sections.forEach((s) => io.observe(s));
+  }
+
+  // Signal meter: bars light up with scroll depth; shown once the stage is behind you.
+  const meter = document.getElementById("meter");
+  const bars = meter.querySelectorAll("i");
+  let queued = false;
+  function update() {
+    queued = false;
+    const max = document.documentElement.scrollHeight - innerHeight;
+    const p = max > 0 ? scrollY / max : 0;
+    const lvl = Math.min(bars.length, Math.ceil(p * bars.length));
+    bars.forEach((b, i) => b.classList.toggle("on", i < lvl));
+    const show = scrollY > document.getElementById("stage").offsetHeight * 0.6;
+    meter.classList.toggle("show", show);
+    meter.inert = !show;
+  }
+  addEventListener("scroll", () => { if (!queued) { queued = true; requestAnimationFrame(update); } }, { passive: true });
+  addEventListener("resize", update);
+  update();
+  meter.addEventListener("click", () => {
+    scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+    const btn = document.querySelector(".exhibit");
+    if (btn && !currentRoom()) btn.focus({ preventScroll: true });
+  });
+})();
