@@ -27,6 +27,7 @@ const T = {
       migration: {
         title: "Led the move from Java to NestJS",
         lede: "At Hoiio I led the migration of 4+ Java/Spring Boot microservices to Node.js and TypeScript, from the first architecture decisions to production traffic.",
+        diff: { hunk: "4+ services · production", del: ["Java / Spring Boot"], add: ["NestJS / TypeScript on Node.js", "TypeORM on MySQL, environment-based config"] },
         points: ["Chose NestJS for its closeness to Spring Boot, so the team kept familiar patterns.", "Rebuilt data access on MySQL with TypeORM and environment-based configuration.", "All 4+ services now run in production."],
         outLabel: "Outcomes",
         out: ["Lower server resource use", "Faster feature delivery", "One stack for the team"],
@@ -80,6 +81,7 @@ const T = {
       migration: {
         title: "Dẫn dắt chuyển đổi từ Java sang NestJS",
         lede: "Tại Hoiio, tôi dẫn dắt việc chuyển hơn 4 microservice Java/Spring Boot sang Node.js và TypeScript, từ các quyết định kiến trúc đầu tiên đến khi chạy production.",
+        diff: { hunk: "4+ service · production", del: ["Java / Spring Boot"], add: ["NestJS / TypeScript trên Node.js", "TypeORM trên MySQL, cấu hình theo môi trường"] },
         points: ["Chọn NestJS vì gần với Spring Boot, giúp team giữ được cách làm quen thuộc.", "Xây lại tầng dữ liệu trên MySQL với TypeORM và cấu hình theo môi trường.", "Toàn bộ hơn 4 service đã chạy production."],
         outLabel: "Kết quả",
         out: ["Giảm tài nguyên server", "Ra tính năng nhanh hơn", "Một stack thống nhất cho team"],

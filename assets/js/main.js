@@ -58,6 +58,7 @@ function renderRoom() {
     <div class="call-state"><span class="led" aria-hidden="true"></span><span class="label">${esc(d.connected)} · ${EXT[r]}</span></div>
     <h2 class="room-title">${esc(c.title)}</h2>
     <p class="room-lede">${esc(c.lede)}</p>
+    ${c.diff ? diffBlock(r, c.diff) : ""}
     <ul class="room-points">${c.points.map((p) => `<li>${esc(p)}</li>`).join("")}</ul>
     <div class="chip-group"><span class="label">${esc(c.outLabel)}</span><div class="chips">${c.out.map((o) => `<span class="chip lit">${esc(o)}</span>`).join("")}</div></div>
     <div class="chip-group"><span class="label">${esc(d.stackLabel)}</span><div class="chips">${c.stack.map((o) => `<span class="chip">${esc(o)}</span>`).join("")}</div></div>
@@ -65,6 +66,19 @@ function renderRoom() {
       <button type="button" class="btn-outline" data-go="">← ${esc(d.back)}</button>
       <button type="button" class="btn-solid" data-go="${next}">${esc(d.next)} · ${EXT[next]}</button>
     </div>`;
+}
+
+// A room's before/after, drawn as a unified diff: removed lines first, then added.
+function diffBlock(r, f) {
+  const lines = [...f.del.map((t) => ["del", "−", t, "del"]), ...f.add.map((t) => ["add", "+", t, "ins"])];
+  return `
+    <figure class="diff">
+      <figcaption><span class="label">${r}.diff</span><span class="diff-stat"><b class="add">+${f.add.length}</b> <b class="del">−${f.del.length}</b></span></figcaption>
+      <div class="diff-body">
+        <div class="diff-hunk">@@ ${esc(f.hunk)} @@</div>
+        ${lines.map(([k, s, t, tag], i) => `<div class="diff-line ${k}" style="--i:${i}"><span class="diff-sign" aria-hidden="true">${s}</span><${tag}>${esc(t)}</${tag}></div>`).join("")}
+      </div>
+    </figure>`;
 }
 
 function go(room) {

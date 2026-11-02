@@ -198,6 +198,27 @@ button { font: inherit; color: inherit; }
 .room-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
 .room-points li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 10px; color: #c9d6d2; }
 .room-points li::before { content: ""; width: 8px; height: 2px; background: var(--signal); margin-top: 0.8em; }
+.diff { margin: 0; border: 1px solid var(--line); font-family: var(--font-mono); font-size: 13px; }
+.diff figcaption {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 8px 12px; border-bottom: 1px solid var(--line);
+}
+.diff-stat { font-size: 12px; }
+.diff-stat b { font-weight: 500; }
+.diff-stat .add { color: var(--signal); }
+.diff-stat .del { color: var(--mute); }
+.diff-body { padding: 6px 0; }
+.diff-hunk { padding: 4px 12px; color: var(--mute); }
+.diff-line {
+  display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 8px; padding: 3px 12px;
+  opacity: 0; transform: translateX(-8px);
+  transition: opacity 0.4s, transform 0.4s; transition-delay: calc(var(--i) * 140ms + 350ms);
+}
+.diff-line ins, .diff-line del { text-decoration: none; }
+.diff-line.del { color: var(--mute); }
+.diff-line.del del { text-decoration: line-through; text-decoration-color: var(--mute); }
+.diff-line.add { color: var(--signal); background: var(--signal-soft); }
+body[data-room] .diff-line { opacity: 1; transform: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   font-family: var(--font-mono); font-size: 12px; padding: 4px 9px;
