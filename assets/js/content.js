@@ -45,7 +45,8 @@ const T = {
     log: [
       { when: "Oct 2022 — Present", role: "Software Developer", org: "Hoiio · Remote", note: "Backend for a cloud communications (CPaaS) platform. Led the Java-to-NestJS migration and built MCP servers for AI agents." },
       { when: "Jun 2021 — Oct 2022", role: "Mobile Application Developer", org: "FPT Software · Da Nang", note: "Retail and commerce mobile apps for Japanese clients, built with React Native and Java." },
-      { when: "2018 — 2022", role: "B.S. Software Engineering", org: "FPT University", note: "" }
+      { when: "2018 — 2022", role: "B.S. Software Engineering", org: "FPT University", note: "" },
+      { when: "2015 — 2018", role: "Informatics specialized class", org: "Le Thanh Tong High School for the Gifted", note: "" }
     ]
   },
   vi: {
@@ -90,7 +91,8 @@ const T = {
     log: [
       { when: "10/2022 — Nay", role: "Software Developer", org: "Hoiio · Remote", note: "Backend cho nền tảng liên lạc đám mây (CPaaS). Dẫn dắt chuyển đổi Java sang NestJS và xây MCP server cho AI agent." },
       { when: "06/2021 — 10/2022", role: "Mobile Application Developer", org: "FPT Software · Đà Nẵng", note: "Ứng dụng di động bán lẻ, thương mại cho khách hàng Nhật, dùng React Native và Java." },
-      { when: "2018 — 2022", role: "Cử nhân Kỹ thuật phần mềm", org: "Đại học FPT", note: "" }
+      { when: "2018 — 2022", role: "Cử nhân Kỹ thuật phần mềm", org: "Đại học FPT", note: "" },
+      { when: "2015 — 2018", role: "Lớp chuyên Tin", org: "THPT Chuyên Lê Thánh Tông", note: "" }
     ]
   }
 };
