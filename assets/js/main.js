@@ -28,6 +28,10 @@ function currentRoom() {
 
 function renderRoom() {
   const r = currentRoom();
+  // Hidden layers stay out of the Tab order and the accessibility tree.
+  document.getElementById("floor").inert = !!r;
+  document.querySelector(".nameplate").inert = !!r;
+  document.getElementById("room").inert = !r;
   if (!r) { delete document.body.dataset.room; return; }
   document.body.dataset.room = r;
   const d = T[lang], c = d.rooms[r];
@@ -48,10 +52,12 @@ function renderRoom() {
 }
 
 function go(room) {
-  if (room) { location.hash = room; }
+  const from = currentRoom();
+  location.hash = room || "stage";
+  renderRoom(); // apply inert now so focus can move before hashchange fires
+  if (room) { document.getElementById("room-card").focus({ preventScroll: true }); }
   else {
-    location.hash = "stage";
-    const btn = document.querySelector(".exhibit");
+    const btn = document.querySelector(`.exhibit[data-room="${from}"]`) || document.querySelector(".exhibit");
     if (btn) btn.focus({ preventScroll: true });
   }
 }
