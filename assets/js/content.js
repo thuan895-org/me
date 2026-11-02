@@ -23,6 +23,7 @@ const T = {
     ivr_tip: "Your keyboard works too.",
     hint: "or dial 101–103 on your keyboard",
     dialing: "Dialing", noExt: "No such extension",
+    cdr: "Call detail records", records: "records", inCall: "In call", ended: "Ended", yr: "y", mo: "m",
     rooms: {
       migration: {
         title: "Led the move from Java to NestJS",
@@ -51,10 +52,10 @@ const T = {
       }
     },
     log: [
-      { now: true, when: "Oct 2022 — Present", role: "Software Developer", org: "Hoiio · Remote", note: "Backend for a cloud communications (CPaaS) platform. Led the Java-to-NestJS migration and built MCP servers for AI agents." },
-      { when: "Jun 2021 — Oct 2022", role: "Mobile Application Developer", org: "FPT Software · Da Nang", note: "Retail and commerce mobile apps for Japanese clients, built with React Native and Java." },
-      { when: "2018 — 2022", role: "B.S. Software Engineering", org: "FPT University", note: "" },
-      { when: "2015 — 2018", role: "Informatics specialized class", org: "Le Thanh Tong High School for the Gifted", note: "" }
+      { now: true, start: "2022-10", when: "Oct 2022 — Present", role: "Software Developer", org: "Hoiio · Remote", note: "Backend for a cloud communications (CPaaS) platform. Led the Java-to-NestJS migration and built MCP servers for AI agents." },
+      { start: "2021-06", end: "2022-10", when: "Jun 2021 — Oct 2022", role: "Mobile Application Developer", org: "FPT Software · Da Nang", note: "Retail and commerce mobile apps for Japanese clients, built with React Native and Java." },
+      { start: "2018", end: "2022", when: "2018 — 2022", role: "B.S. Software Engineering", org: "FPT University", note: "" },
+      { start: "2015", end: "2018", when: "2015 — 2018", role: "Informatics specialized class", org: "Le Thanh Tong High School for the Gifted", note: "" }
     ]
   },
   vi: {
@@ -77,6 +78,7 @@ const T = {
     ivr_tip: "Có thể bấm phím số trên bàn phím.",
     hint: "hoặc quay số 101–103 trên bàn phím",
     dialing: "Đang quay số", noExt: "Không có máy nhánh này",
+    cdr: "Bản ghi cuộc gọi", records: "bản ghi", inCall: "Đang gọi", ended: "Đã kết thúc", yr: " năm", mo: " tháng",
     rooms: {
       migration: {
         title: "Dẫn dắt chuyển đổi từ Java sang NestJS",
@@ -105,10 +107,10 @@ const T = {
       }
     },
     log: [
-      { now: true, when: "10/2022 — Nay", role: "Software Developer", org: "Hoiio · Remote", note: "Backend cho nền tảng liên lạc đám mây (CPaaS). Dẫn dắt chuyển đổi Java sang NestJS và xây MCP server cho AI agent." },
-      { when: "06/2021 — 10/2022", role: "Mobile Application Developer", org: "FPT Software · Đà Nẵng", note: "Ứng dụng di động bán lẻ, thương mại cho khách hàng Nhật, dùng React Native và Java." },
-      { when: "2018 — 2022", role: "Cử nhân Kỹ thuật phần mềm", org: "Đại học FPT", note: "" },
-      { when: "2015 — 2018", role: "Lớp chuyên Tin", org: "THPT Chuyên Lê Thánh Tông", note: "" }
+      { now: true, start: "2022-10", when: "10/2022 — Nay", role: "Software Developer", org: "Hoiio · Remote", note: "Backend cho nền tảng liên lạc đám mây (CPaaS). Dẫn dắt chuyển đổi Java sang NestJS và xây MCP server cho AI agent." },
+      { start: "2021-06", end: "2022-10", when: "06/2021 — 10/2022", role: "Mobile Application Developer", org: "FPT Software · Đà Nẵng", note: "Ứng dụng di động bán lẻ, thương mại cho khách hàng Nhật, dùng React Native và Java." },
+      { start: "2018", end: "2022", when: "2018 — 2022", role: "Cử nhân Kỹ thuật phần mềm", org: "Đại học FPT", note: "" },
+      { start: "2015", end: "2018", when: "2015 — 2018", role: "Lớp chuyên Tin", org: "THPT Chuyên Lê Thánh Tông", note: "" }
     ]
   }
 };

@@ -10,12 +10,18 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = d[el.dataset.i18n]; });
   document.querySelectorAll("[data-i18n-label]").forEach((el) => { el.setAttribute("aria-label", d[el.dataset.i18nLabel]); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
-  document.getElementById("log").innerHTML = d.log.map((r, i) => {
+  document.getElementById("log").innerHTML = `
+    <div class="cdr-head reveal" style="--i:0"><span class="label">${esc(d.cdr)}</span><span class="label">${d.log.length} ${esc(d.records)}</span></div>` + d.log.map((r, i) => {
     const head = `<span class="log-role">${esc(r.role)}</span><span class="log-org">${esc(r.org)}</span>`;
     const open = openLog.has(i);
     return `
     <div class="log-row reveal" style="--i:${i + 1}">
-      <div class="log-when">${r.now ? `<span class="led" aria-hidden="true"></span>` : ""}${esc(r.when)}</div>
+      <div class="log-when">
+        <span class="cdr-id">CDR-${String(d.log.length - i).padStart(4, "0")}</span>
+        <span>${esc(r.when)}</span>
+        <span class="cdr-dur">${duration(r.start, r.end, d)}</span>
+        <span class="cdr-state${r.now ? " live" : ""}">${r.now ? `<span class="led" aria-hidden="true"></span>` : ""}${esc(r.now ? d.inCall : d.ended)}</span>
+      </div>
       <div class="log-what">
         ${r.note ? `
         <button type="button" class="log-toggle" data-log="${i}" aria-expanded="${open}" aria-controls="log-d${i}">${head}<span class="log-plus" aria-hidden="true"></span></button>
@@ -24,6 +30,15 @@ function applyLang() {
     </div>`;
   }).join("");
   renderRoom();
+}
+
+// Call length from "YYYY" or "YYYY-MM"; an open record runs to this month.
+function duration(start, end, d) {
+  const n = new Date();
+  const m = (v) => { const [y, mo] = v.split("-").map(Number); return y * 12 + (mo || 0); };
+  const total = (end ? m(end) : n.getFullYear() * 12 + n.getMonth() + 1) - m(start);
+  const y = Math.floor(total / 12), mo = total % 12;
+  return [y ? y + d.yr : "", mo ? mo + d.mo : ""].filter(Boolean).join(" ");
 }
 
 // Call log rows that are expanded; the current job starts open.

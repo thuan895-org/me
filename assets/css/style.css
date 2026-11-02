@@ -298,7 +298,13 @@ a.contact-value:hover { color: var(--signal); }
 }
 
 /* Expandable call log */
-.log-when { display: flex; align-items: center; align-self: start; gap: 10px; }
+/* CDR: each call log row carries a call record (id, period, length, state) */
+.log-when { display: grid; gap: 3px; align-self: start; }
+.cdr-head { display: flex; justify-content: space-between; gap: 12px; padding-block: 10px; border-bottom: 1px solid var(--line); }
+.cdr-id { color: var(--ink); letter-spacing: 0.08em; }
+.cdr-dur { color: var(--ink); }
+.cdr-state { display: flex; align-items: center; gap: 8px; text-transform: uppercase; letter-spacing: 0.14em; font-size: 11px; }
+.cdr-state.live { color: var(--signal); }
 .log-toggle {
   display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 16px; row-gap: 4px;
   width: 100%; padding: 0; background: none; border: 0; text-align: left; cursor: pointer;
@@ -389,6 +395,7 @@ a.contact-value:hover { color: var(--signal); }
   .room-light { display: none; }
   .room-card { max-height: calc(100% - 4px); }
   .log-row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .log-when { display: flex; flex-wrap: wrap; align-items: center; column-gap: 14px; }
   .certs, .contact { grid-template-columns: minmax(0, 1fr); }
   .stats, .ivr-keys { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .status .label { font-size: 10px; letter-spacing: 0.1em; }
