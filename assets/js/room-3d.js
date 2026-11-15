@@ -23,7 +23,7 @@ const PAGE_SCALE = 2.1;   // ...and a touch bigger once it follows the reader do
 const PAGE_DIM = 0.55;    // how much it fades behind the text
 const SETTLE_DELAY = 500; // ms without scrolling before the knot moves to its new spot
 const SLIDE_EASE = 2.2;   // how fast it glides there, per second; lower = slower
-const SIDE = 0.74;        // on wide screens the knot rests right of centre (fraction of width), clear of the text
+const SIDE = 0.74;        // on wide screens the knot rests off centre (fraction of width), alternating right and left
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -119,10 +119,11 @@ async function boot() {
     const top = document.body.dataset.room && col.width
       ? { x: col.left + col.width / 2, y: col.top + scrollY + col.height / 2, scale: 1, a: 0, room: 1 }
       : { x: w / 2, y: stage.offsetHeight * 0.42, scale: STAGE_SCALE, a: 0, room: 0 };
-    const side = innerWidth > 760 ? w * SIDE : w / 2;
-    return [top].concat(sections.map((el) => {
+    // Sections alternate sides on wide screens (right, left, right...), so each settle swings the knot across.
+    const side = (i) => (innerWidth > 760 ? w * (i % 2 ? 1 - SIDE : SIDE) : w / 2);
+    return [top].concat(sections.map((el, i) => {
       const r = el.getBoundingClientRect();
-      return { x: side, y: r.top + scrollY + r.height / 2, scale: PAGE_SCALE, a: 1, room: 0 };
+      return { x: side(i), y: r.top + scrollY + r.height / 2, scale: PAGE_SCALE, a: 1, room: 0 };
     }));
   }
 
