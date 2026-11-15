@@ -19,7 +19,7 @@ npx serve .            # hoặc: python3 -m http.server 5173
 # rồi mở http://localhost:3000 (serve) hoặc http://localhost:5173 (python)
 ```
 
-Không cần `npm install`. Font tải từ Google Fonts nên cần có mạng để thấy đúng kiểu chữ.
+Không cần `npm install`. Font tải từ Google Fonts và three.js tải từ jsDelivr, nên cần có mạng để thấy đúng kiểu chữ và cảnh 3D trong phòng.
 
 ---
 
@@ -33,12 +33,13 @@ me/
 │   └── js/
 │       ├── content.js      # TOÀN BỘ NỘI DUNG chữ (EN + VI): ROOMS, EXT, T
 │       ├── main.js         # Logic: đổi ngôn ngữ, điều hướng phòng theo #hash, nút copy
-│       └── stage-fx.js     # Hiệu ứng canvas: bụi bay + phản chiếu đèn trên sàn ướt
+│       ├── stage-fx.js     # Hiệu ứng canvas: bụi bay + phản chiếu đèn trên sàn ướt + nền riêng từng phòng
+│       └── room-3d.js      # ES module: khối nút xoắn 3D dưới 3 tấm đèn (three.js) trong phòng
 ├── CLAUDE.md               # Quy ước ngắn gọn cho Claude Code
 └── README.md
 ```
 
-Thứ tự nạp script ở cuối `index.html` là bắt buộc: `content.js` → `main.js` → `stage-fx.js` (main.js dùng biến toàn cục `ROOMS`, `EXT`, `T` từ content.js).
+Thứ tự nạp script ở cuối `index.html` là bắt buộc: `content.js` → `main.js` → `stage-fx.js` (main.js dùng biến toàn cục `ROOMS`, `EXT`, `T` từ content.js), sau đó là importmap và module `room-3d.js`.
 
 ---
 
@@ -98,6 +99,13 @@ Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải l�
 - Canvas phủ toàn sân khấu: hạt bụi bay chậm + vệt phản chiếu dưới mỗi ống đèn.
 - Mỗi frame đọc vị trí các ống đèn bằng `getBoundingClientRect()` nên tự khớp khi đổi kích thước hoặc vào phòng.
 - Tôn trọng `prefers-reduced-motion`: tắt animation, chỉ vẽ một frame tĩnh.
+
+### Cảnh 3D trong phòng (`room-3d.js`)
+- Ngoại lệ duy nhất cho quy tắc "không dependency": three.js `0.160.0` nạp từ jsDelivr qua importmap trong `index.html`. Không npm, không build.
+- Chỉ tải khi mở phòng lần đầu trên màn hình rộng hơn 760px; trên điện thoại không tải.
+- 3 tấm đèn RectAreaLight (trắng · màu đường dây · trắng) chiếu vào khối nút xoắn đang xoay; mỗi phòng một kiểu nút xoắn và độ sáng riêng (bảng `WORLDS`).
+- Màu lấy từ CSS token (`--signal`, `--white-light`, `--mute`, `--panel`).
+- Không có WebGL hoặc không tải được CDN thì giữ nguyên cột đèn CSS.
 
 ---
 

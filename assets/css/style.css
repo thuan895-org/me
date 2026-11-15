@@ -262,6 +262,10 @@ body[data-room="ai"] .stage {
 }
 body[data-room="ai"] .room-light .tube i { box-shadow: 0 0 18px rgba(244, 251, 248, 0.75), 0 0 60px rgba(244, 251, 248, 0.3); }
 
+/* 3D hero (room-3d.js): once it loads, the canvas replaces the CSS tubes */
+.room-3d { position: absolute; inset: 0; width: 100%; height: 100%; display: block; animation: patch 0.8s 0.2s backwards; }
+.room-light.has-3d .tube { display: none; }
+
 /* Switching rooms: a band of light sweeps the stage, the card patches back in */
 .sweep {
   position: absolute; z-index: 5; inset: 0; pointer-events: none; overflow: hidden;
