@@ -89,7 +89,10 @@ function renderRoom() {
   }
   const next = ROOMS[(ROOMS.indexOf(r) + 1) % ROOMS.length];
   document.getElementById("room-card").innerHTML = `
-    <div class="call-state"><span class="led" aria-hidden="true"></span><span class="label">${esc(d.connected)} · ${EXT[r]}</span></div>
+    <div class="room-top">
+      <button type="button" class="btn-outline" data-go="">← ${esc(d.back)}</button>
+      <div class="call-state"><span class="led" aria-hidden="true"></span><span class="label">${esc(d.connected)} · ${EXT[r]}</span></div>
+    </div>
     <h2 class="room-title">${esc(c.title)}</h2>
     <p class="room-lede">${esc(c.lede)}</p>
     ${c.diff ? diffBlock(r, c.diff) : ""}
@@ -97,7 +100,6 @@ function renderRoom() {
     <div class="chip-group"><span class="label">${esc(c.outLabel)}</span><div class="chips">${c.out.map((o) => `<span class="chip lit">${esc(o)}</span>`).join("")}</div></div>
     <div class="chip-group"><span class="label">${esc(d.stackLabel)}</span><div class="chips">${c.stack.map((o) => `<span class="chip">${esc(o)}</span>`).join("")}</div></div>
     <div class="room-nav">
-      <button type="button" class="btn-outline" data-go="">← ${esc(d.back)}</button>
       <button type="button" class="btn-solid" data-go="${next}">${esc(d.next)} · ${EXT[next]}</button>
     </div>`;
 }

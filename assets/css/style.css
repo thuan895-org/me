@@ -197,10 +197,19 @@ button { font: inherit; color: inherit; }
   min-width: 0; max-width: 600px;
   background: rgba(8, 18, 20, 0.86);
   border: 1px solid var(--line);
-  padding: clamp(20px, 3.5vw, 36px);
+  --card-pad: clamp(20px, 3.5vw, 36px);
+  padding: var(--card-pad);
   display: grid; gap: 16px;
   max-height: calc(100% - 8px); overflow-y: auto;
   transform: translateY(14px); transition: transform 0.6s 0.15s cubic-bezier(.2,.7,.2,1);
+}
+/* Back to stage stays pinned at the top of the card while its text scrolls */
+.room-top {
+  position: sticky; top: calc(-1 * var(--card-pad)); z-index: 1;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px;
+  margin: calc(-1 * var(--card-pad)) calc(-1 * var(--card-pad)) 0;
+  padding: var(--card-pad) var(--card-pad) 14px;
+  background: var(--panel); border-bottom: 1px solid var(--line);
 }
 .call-state { display: flex; align-items: center; gap: 10px; }
 .room-title {
