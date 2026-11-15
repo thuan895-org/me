@@ -1,7 +1,7 @@
 /* 3D hero: a torus knot under three area lights (one per extension), drawn on one canvas fixed to the viewport.
-   On the stage it sways behind the extensions. Scrolling down carries it up with the page for a moment, then it
-   drifts back to the middle of the screen (inertia) and stays with the reader, smaller and dimmer, behind the text;
-   scrolling also pushes the sway along. Opening a room flies it into the left column, where the light panels and a
+   On the stage it sways behind the extensions. As the reader scrolls down it glides to the middle of the screen
+   and stays with them, dimmer, behind the text; scrolling also pushes the sway along. The knot never reads the raw
+   scroll position: it follows a smoothed, slightly delayed copy (SCROLL_EASE), so wheel steps don't make it judder. Opening a room flies it into the left column, where the light panels and a
    glossy floor come up around it.
    three.js loads from the CDN (see the importmap in index.html); without WebGL or the CDN nothing is drawn and
    the CSS tubes in the room stay as the fallback. */
@@ -20,6 +20,7 @@ const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a 
 const PAGE_SCALE = 2.1;   // ...and a touch bigger once it follows the reader down the page
 const PAGE_DIM = 0.55;    // how much it fades behind the text
 const SCROLL_SPIN = 0.01; // seconds of sway per scrolled pixel
+const SCROLL_EASE = 1.8;  // how fast the smoothed scroll catches up (per second); lower = longer delay
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -107,7 +108,8 @@ async function boot() {
   }
 
   // How far the reader has left the stage: 0 at the top, 1 once the stage is mostly scrolled away.
-  const away = () => Math.min(Math.max(scrollY / (stage.offsetHeight * 0.6), 0), 1);
+  let eased = scrollY; // smoothed scroll position, updated every frame
+  const away = () => Math.min(Math.max(eased / (stage.offsetHeight * 0.6), 0), 1);
 
   // Where the rig should be right now (viewport px): the room's left column, or behind the extensions at the top
   // of the page, easing to the middle of the screen as the reader scrolls on.
@@ -121,20 +123,18 @@ async function boot() {
   }
 
   const cur = { x: null, y: 0, scale: STAGE_SCALE, room: 0, a: 0 };
-  let spin = scrollY * SCROLL_SPIN, last = 0, lastScroll = scrollY;
+  let last = 0;
 
   function frame(t) {
     const dt = last ? Math.min((t - last) / 1000, 0.1) : 1;
     last = t;
     setWorld(document.body.dataset.room || "stage");
+    eased += (scrollY - eased) * (reduce ? 1 : 1 - Math.exp(-dt * SCROLL_EASE));
     const tg = target();
     const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
     if (cur.x === null) { cur.x = tg.x; cur.y = tg.y; }
-    // Inertia: the knot first rides along with the page, then the spring below pulls it back to its spot.
-    if (!reduce) cur.y -= scrollY - lastScroll;
-    lastScroll = scrollY;
     cur.x += (tg.x - cur.x) * k;
-    cur.y += (tg.y - cur.y) * (reduce ? 1 : 1 - Math.exp(-dt * 2.5));
+    cur.y += (tg.y - cur.y) * k;
     cur.scale += (tg.scale - cur.scale) * k;
     cur.room += (tg.room - cur.room) * k;
     cur.a += (tg.a - cur.a) * k;
@@ -147,8 +147,7 @@ async function boot() {
     helpers.forEach((hp) => { hp.visible = cur.room > 0.6; });
 
     // Sway like three.js' instancing/scatter example; scrolling pushes the clock forward.
-    if (!reduce) spin += (scrollY * SCROLL_SPIN - spin) * (1 - Math.exp(-dt * 6));
-    const time = (reduce ? 0 : t / 1000) + spin;
+    const time = (reduce ? 0 : t / 1000) + eased * SCROLL_SPIN;
     knot.rotation.x = Math.sin(time / 4);
     knot.rotation.y = Math.sin(time / 2);
     renderer.render(scene, camera);
