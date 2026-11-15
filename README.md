@@ -133,20 +133,24 @@ Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải l�
 
 ---
 
-## 6. Deploy (miễn phí)
+## 6. Deploy
 
-Static site nên deploy được ở bất kỳ đâu:
+Trang đang chạy trên **Vercel** (gói Hobby, miễn phí):
 
-- **GitHub Pages**: push repo lên `github.com/thuan895/me` (hoặc đổi tên repo thành `thuan895.github.io` để có domain `https://thuan895.github.io`) → Settings → Pages → Deploy from branch `main`, thư mục `/ (root)`.
-- **Vercel / Netlify / Cloudflare Pages**: import repo, Framework = "Other", Build command để trống, Output dir = `.`
+- Link chính: **https://www.thuanday.blog** (tên miền mua ở Porkbun). `thuanday.blog` chuyển hướng 308 sang `www`.
+- Link mặc định của Vercel: https://me-gamma-sage.vercel.app
+- Mỗi lần push lên `main`, Vercel tự deploy lại. Cấu hình project: Application Preset = **Other**, Root Directory = `./`, Build Command để trống.
+- DNS ở Porkbun: bản ghi `A` cho tên gốc và `CNAME` cho `www`, giá trị lấy từ Vercel → Project → **Domains** → *View DNS configuration*. Các bản ghi mặc định trỏ tới `pixie.porkbun.com` đã được xoá.
+- Link chính cũng nằm trong `index.html` (`<link rel="canonical">` và `og:url`); đổi tên miền thì sửa cả hai chỗ đó.
 
-Sau khi có link, thêm vào CV, LinkedIn (phần Contact info → Website) và GitHub profile.
+Nhớ thêm link vào CV, LinkedIn (phần Contact info → Website) và GitHub profile.
 
 ---
 
 ## 7. Việc còn lại (TODO)
 
-- [ ] Deploy lên GitHub Pages và gắn link vào CV/LinkedIn.
+- [x] Deploy lên Vercel, tên miền `www.thuanday.blog`.
+- [ ] Gắn link vào CV/LinkedIn/GitHub profile.
 - [ ] Ảnh Open Graph (`og:image`) 1200×630 để khi chia sẻ link có ảnh đẹp.
 - [ ] Favicon.
 - [ ] Bản CV PDF cùng phong cách + nút "Download CV" (đặt file vào `assets/` và link tới).
