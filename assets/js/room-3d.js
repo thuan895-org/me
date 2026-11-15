@@ -21,7 +21,7 @@ const WORLDS = {
 const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a room
 const PAGE_SCALE = 2.1;   // ...and a touch bigger once it follows the reader down the page
 const PAGE_DIM = 0.55;    // how much it fades behind the text
-const SETTLE_DELAY = 500; // ms without scrolling before the knot moves to its new spot
+const SETTLE_DELAY = 300; // ms without scrolling before the knot moves to its new spot
 const SLIDE_EASE = 2.2;   // how fast it glides there, per second; lower = slower
 const SIDE = 0.74;        // on wide screens the knot rests off centre (fraction of width), alternating right and left
 

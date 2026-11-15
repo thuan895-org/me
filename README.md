@@ -117,7 +117,7 @@ Quy tắc: mọi màu phải lấy từ token, kể cả màu vẽ trên canvas 
 - Ngoại lệ duy nhất cho quy tắc "không dependency": three.js `0.160.0` nạp từ jsDelivr qua importmap trong `index.html`. Không npm, không build.
 - Một canvas cố định theo màn hình (`.stage-3d`, `position: fixed`), nằm trên nền sân khấu và canvas bụi, dưới các máy nhánh và phần chữ (`main` có `z-index: 2`).
 - Khối luôn có một "chỗ đứng" trên trang: sau các máy nhánh (hoặc, khi đang ở trong phòng, ở cột trái giữa 3 tấm đèn), hoặc cạnh đoạn đang đọc (trên màn hình rộng thì đổi bên lần lượt: Profile bên phải, Call log bên trái, Certifications bên phải, Contact bên trái; độ lệch là `SIDE`), to hơn một chút (`PAGE_SCALE`) và mờ đi (`PAGE_DIM`) để không che chữ.
-- **Trong lúc cuộn** (chuột, touchpad, vuốt điện thoại kể cả quán tính) khối đứng yên trên màn hình và không đọc vị trí cuộn, nên không bị lệch hay giật so với chữ. **Ngừng cuộn `SETTLE_DELAY` (500 ms)** thì khối mới trượt êm tới chỗ đứng của phần đang hiện trên màn hình (`SLIDE_EASE`).
+- **Trong lúc cuộn** (chuột, touchpad, vuốt điện thoại kể cả quán tính) khối đứng yên trên màn hình và không đọc vị trí cuộn, nên không bị lệch hay giật so với chữ. **Ngừng cuộn `SETTLE_DELAY` (300 ms)** thì khối mới trượt êm tới chỗ đứng của phần đang hiện trên màn hình (`SLIDE_EASE`).
 - Trong phòng cũng vậy: cuộn xuống thì khối rời cột trái (3 tấm đèn và sàn tắt dần) để đi theo nội dung, cuộn lên đầu trang thì nó quay về giữa các tấm đèn.
 - Kiểu lắc chỉ chạy theo thời gian, không phụ thuộc thao tác cuộn.
 - Ở sảnh: khối nút xoắn lắc qua lại phía sau các máy nhánh, kiểu xoay của ví dụ three.js instancing/scatter (`rotation.x = sin(t/4)`, `rotation.y = sin(t/2)`); scroll xuống thì đẩy nhanh chuyển động đó (`SCROLL_SPIN`).
