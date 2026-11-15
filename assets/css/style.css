@@ -462,7 +462,7 @@ a.contact-value:hover { color: var(--signal); }
   .tube i:nth-child(2) { width: 9px; }
   .motion-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
-/* Motion off: html[data-motion] follows prefers-reduced-motion until the visitor uses the Motion button (main.js) */
+/* Motion off: set by the Motion button (main.js); motion is on by default */
 html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {
   animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important;
 }

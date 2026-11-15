@@ -2,9 +2,9 @@
 let lang = "en";
 try { const s = localStorage.getItem("lang"); if (s === "vi" || s === "en") lang = s; } catch (e) {}
 
-// Motion follows the OS "reduce motion" setting until the visitor picks with the Motion button (remembered).
+// Motion is on by default; the visitor can switch it off with the Motion button (remembered).
 // stage-fx.js and room-3d.js read html[data-motion] and listen for "motionchange".
-let reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let reduce = false;
 try { const m = localStorage.getItem("motion"); if (m === "on" || m === "off") reduce = m === "off"; } catch (e) {}
 document.documentElement.dataset.motion = reduce ? "off" : "on";
 

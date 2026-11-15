@@ -15,7 +15,7 @@ Personal portfolio site for Nguyen Van Thuan (software engineer, Da Nang). Full 
 - Fonts: Big Shoulders Display (display), IBM Plex Sans (body), IBM Plex Mono (labels/data).
 - Concept is a telecom switchboard: extensions EXT 101/102/103 = rooms `migration`, `cpaas`, `ai`, routed by `location.hash`. Keep this vocabulary consistent.
 - Design is inspired by the staging of adidas CHILE20 but must never use adidas/Foot Locker logos, names, marks, colors or imagery.
-- Must work at 400px width with no horizontal scroll; respect `prefers-reduced-motion` by default (the Motion button in the topbar may override it; state lives on `html[data-motion]`, scripts react to the `motionchange` event); keep keyboard focus visible.
+- Must work at 400px width with no horizontal scroll; motion is ON by default (the user's choice; the OS `prefers-reduced-motion` is not applied automatically). Visitors switch it off with the Motion button in the topbar (remembered in localStorage `motion`); state lives on `html[data-motion]`, scripts react to the `motionchange` event. Every animation must stop when motion is off; keep keyboard focus visible.
 - Facts about Thuan's career must not be invented. Only use what is already in content.js / README, or what the user states.
 
 ## Commits

@@ -96,14 +96,14 @@ Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải l�
 - Ngôn ngữ đã chọn được nhớ trong `localStorage` (bọc try/catch, lỗi thì mặc định EN).
 
 ### Nút Chuyển động (Motion)
-- Mặc định trang làm theo cài đặt giảm chuyển động của hệ điều hành (`prefers-reduced-motion`; trên Windows là Settings → Accessibility → Visual effects → Animation effects).
-- Nút "Motion / Chuyển động" trên thanh trên cùng cho khách tự bật/tắt; lựa chọn được nhớ trong `localStorage` (`motion`).
+- Mặc định chuyển động **bật**, kể cả khi hệ điều hành đang bật giảm chuyển động (`prefers-reduced-motion`): đây là lựa chọn của chủ trang.
+- Nút "Motion / Chuyển động" trên thanh trên cùng cho khách tự tắt/bật; lựa chọn được nhớ trong `localStorage` (`motion`).
 - Trạng thái nằm ở `html[data-motion="on|off"]`; CSS tắt animation theo thuộc tính này, còn `stage-fx.js` và `room-3d.js` nghe sự kiện `motionchange`.
 
 ### Hiệu ứng (`stage-fx.js`)
 - Canvas phủ toàn sân khấu: hạt bụi bay chậm + vệt phản chiếu dưới mỗi ống đèn.
 - Mỗi frame đọc vị trí các ống đèn bằng `getBoundingClientRect()` nên tự khớp khi đổi kích thước hoặc vào phòng.
-- Tôn trọng `prefers-reduced-motion`: tắt animation, chỉ vẽ một frame tĩnh.
+- Khi tắt chuyển động (nút Motion): dừng animation, chỉ vẽ một frame tĩnh.
 
 ### Cảnh 3D (`room-3d.js`)
 - Ngoại lệ duy nhất cho quy tắc "không dependency": three.js `0.160.0` nạp từ jsDelivr qua importmap trong `index.html`. Không npm, không build.
