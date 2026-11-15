@@ -34,7 +34,7 @@ me/
 │       ├── content.js      # TOÀN BỘ NỘI DUNG chữ (EN + VI): ROOMS, EXT, T
 │       ├── main.js         # Logic: đổi ngôn ngữ, điều hướng phòng theo #hash, nút copy
 │       ├── stage-fx.js     # Hiệu ứng canvas: bụi bay + phản chiếu đèn trên sàn ướt + nền riêng từng phòng
-│       └── room-3d.js      # ES module: khối nút xoắn 3D dưới 3 tấm đèn (three.js) trong phòng
+│       └── room-3d.js      # ES module: khối nút xoắn 3D (three.js) ở sảnh và trong phòng
 ├── CLAUDE.md               # Quy ước ngắn gọn cho Claude Code
 └── README.md
 ```
@@ -100,10 +100,13 @@ Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải l�
 - Mỗi frame đọc vị trí các ống đèn bằng `getBoundingClientRect()` nên tự khớp khi đổi kích thước hoặc vào phòng.
 - Tôn trọng `prefers-reduced-motion`: tắt animation, chỉ vẽ một frame tĩnh.
 
-### Cảnh 3D trong phòng (`room-3d.js`)
+### Cảnh 3D (`room-3d.js`)
 - Ngoại lệ duy nhất cho quy tắc "không dependency": three.js `0.160.0` nạp từ jsDelivr qua importmap trong `index.html`. Không npm, không build.
-- Chỉ tải khi mở phòng lần đầu trên màn hình rộng hơn 760px; trên điện thoại không tải.
-- 3 tấm đèn RectAreaLight (trắng · màu đường dây · trắng) chiếu vào khối nút xoắn đang xoay; mỗi phòng một kiểu nút xoắn và độ sáng riêng (bảng `WORLDS`).
+- Một canvas phủ toàn sân khấu (`.stage-3d`), nằm trên canvas bụi và dưới các máy nhánh.
+- Ở sảnh: khối nút xoắn lắc qua lại phía sau các máy nhánh, kiểu xoay của ví dụ three.js instancing/scatter (`rotation.x = sin(t/4)`, `rotation.y = sin(t/2)`); scroll xuống thì đẩy nhanh chuyển động đó (`SCROLL_SPIN`).
+- Mở phòng: khối bay vào cột bên trái, nhỏ lại, 3 tấm đèn RectAreaLight (trắng · màu đường dây · trắng) và sàn bóng hiện lên quanh nó. Trên điện thoại cột trái bị ẩn nên khối ở lại giữa, sau thẻ nội dung.
+- Mỗi phòng một kiểu nút xoắn và độ sáng riêng (bảng `WORLDS`).
+- Chỉ chạy animation khi sân khấu còn trên màn hình.
 - Màu lấy từ CSS token (`--signal`, `--white-light`, `--mute`, `--panel`).
 - Không có WebGL hoặc không tải được CDN thì giữ nguyên cột đèn CSS.
 

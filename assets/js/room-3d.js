@@ -1,19 +1,23 @@
-/* Room hero: a torus knot under three area lights (one per extension), beside the room card on wide screens.
-   three.js loads lazily from the CDN (see the importmap in index.html) the first time a room opens; until then,
-   or if WebGL/the CDN fails, the CSS tubes stay as the fallback. */
+/* 3D hero: a torus knot under three area lights (one per extension), drawn on one canvas across the stage.
+   On the stage it sways in the background and scrolling pushes the sway along; opening a room flies it into the
+   left column, where the light panels and a glossy floor come up around it.
+   three.js loads from the CDN (see the importmap in index.html); without WebGL or the CDN nothing is drawn and
+   the CSS tubes in the room stay as the fallback. */
+const stage = document.getElementById("stage");
 const holder = document.querySelector(".room-light");
 const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const wide = matchMedia("(min-width: 761px)");
 
 // Each world gets its own knot (p, q turns) and light mood; the middle panel is the extension's own line.
 const WORLDS = {
+  stage: { p: 2, q: 3, side: 2, mid: "--signal", midI: 4 },
   migration: { p: 2, q: 3, side: 2, mid: "--mute", midI: 3 },
   cpaas: { p: 3, q: 4, side: 3, mid: "--signal", midI: 8 },
   ai: { p: 2, q: 5, side: 6, mid: "--signal", midI: 5 }
 };
+const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a room
+const SCROLL_SPIN = 0.01; // seconds of sway per scrolled pixel
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-let app = null, booting = null, live = null;
 
 async function boot() {
   const THREE = await import("three");
@@ -23,18 +27,25 @@ async function boot() {
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
-  renderer.domElement.className = "room-3d";
+  renderer.domElement.className = "stage-3d";
   renderer.domElement.setAttribute("aria-hidden", "true");
-  holder.appendChild(renderer.domElement);
+  stage.insertBefore(renderer.domElement, document.getElementById("floor"));
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 1, 100);
+  const camera = new THREE.PerspectiveCamera(45, 1, 1, 200);
+
+  // The rig moves as one: knot at its origin, panels behind it, floor below.
+  const rig = new THREE.Group();
+  scene.add(rig);
 
   // Three panels at the back, lighting the knot towards the camera: white, the line, white.
+  const helpers = [];
   const lights = [-5, 0, 5].map((x) => {
     const l = new THREE.RectAreaLight(0xffffff, 5, 4, 10);
-    l.position.set(x, 6, 5);
-    scene.add(l, new RectAreaLightHelper(l));
+    l.position.set(x, 0.5, 5);
+    const hp = new RectAreaLightHelper(l);
+    rig.add(l, hp);
+    helpers.push(hp);
     return l;
   });
 
@@ -49,68 +60,97 @@ async function boot() {
     new THREE.MeshStandardMaterial({ color: token("--panel"), roughness: 0.12, metalness: 0, transparent: true, alphaMap: new THREE.CanvasTexture(fade) })
   );
   floor.rotation.x = -Math.PI / 2;
-  floor.position.z = -5; // ends at the panels, so no unlit strip shows behind them
-  scene.add(floor);
+  floor.position.set(0, -5.5, -5); // ends at the panels, so no unlit strip shows behind them
+  rig.add(floor);
 
   const knot = new THREE.Mesh(
     new THREE.TorusKnotGeometry(1.5, 0.5, 200, 16),
     new THREE.MeshStandardMaterial({ color: token("--white-light"), roughness: 0, metalness: 0 })
   );
-  knot.position.set(0, 5.5, 0);
-  scene.add(knot);
+  rig.add(knot);
 
+  // Camera looks straight at the rig plane (z = 0); its distance keeps a room's rig the size of the left column.
+  let w = 1, h = 1;
   function fit() {
-    const w = holder.clientWidth, h = holder.clientHeight;
-    if (!w || !h) return;
+    w = stage.clientWidth; h = stage.clientHeight;
     renderer.setSize(w, h, false);
+    const col = holder.getBoundingClientRect();
+    const upp = col.width ? Math.max(15 / col.width, 13 / col.height) : 15 / (w * 0.9); // world units per pixel
     camera.aspect = w / h;
-    // Pull back on narrow columns so all three panels stay in frame.
-    camera.position.set(0, 5, 5 - Math.max(22, 21 / camera.aspect));
-    camera.lookAt(0, 5.5, 0);
+    camera.position.set(0, 0, -(h * upp) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))));
+    camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
   }
-  new ResizeObserver(fit).observe(holder);
-  fit();
 
-  function setWorld(room) {
-    const w = WORLDS[room];
+  // A point on the stage (px) to the matching point on the rig plane.
+  function onPlane(x, y) {
+    const v = new THREE.Vector3((x / w) * 2 - 1, -(y / h) * 2 + 1, 0.5).unproject(camera).sub(camera.position).normalize();
+    return camera.position.clone().addScaledVector(v, -camera.position.z / v.z);
+  }
+
+  let world = null;
+  function setWorld(name) {
+    if (name === world) return;
+    world = name;
+    const m = WORLDS[name];
     knot.geometry.dispose();
-    knot.geometry = new THREE.TorusKnotGeometry(1.5, 0.5, 200, 16, w.p, w.q);
+    knot.geometry = new THREE.TorusKnotGeometry(1.5, 0.5, 200, 16, m.p, m.q);
     lights.forEach((l, i) => {
-      l.color.set(token(i === 1 ? w.mid : "--white-light"));
-      l.intensity = i === 1 ? w.midI : w.side;
+      l.color.set(token(i === 1 ? m.mid : "--white-light"));
+      l.intensity = i === 1 ? m.midI : m.side;
     });
   }
 
-  function render(t) {
-    knot.rotation.y = t / 1600;
-    knot.rotation.x = Math.sin(t / 2600) * 0.35;
+  // Where the rig should be right now: centred behind the extensions, or in the room's left column.
+  function target() {
+    const room = document.body.dataset.room;
+    const sr = stage.getBoundingClientRect(), col = holder.getBoundingClientRect();
+    if (room && col.width) {
+      return { pos: onPlane(col.left - sr.left + col.width / 2, col.top - sr.top + col.height / 2), scale: 1, room: 1 };
+    }
+    return { pos: onPlane(w / 2, h * 0.42), scale: STAGE_SCALE, room: 0 };
+  }
+
+  const cur = { pos: null, scale: STAGE_SCALE, room: 0 };
+  let spin = scrollY * SCROLL_SPIN, last = 0;
+
+  function frame(t) {
+    const dt = last ? Math.min((t - last) / 1000, 0.1) : 1;
+    last = t;
+    setWorld(document.body.dataset.room || "stage");
+    const tg = target();
+    const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
+    cur.pos = cur.pos ? cur.pos.lerp(tg.pos, k) : tg.pos;
+    cur.scale += (tg.scale - cur.scale) * k;
+    cur.room += (tg.room - cur.room) * k;
+    rig.position.copy(cur.pos);
+    knot.scale.setScalar(cur.scale);
+
+    // Panels and floor only belong to a room: they come up as the knot settles in.
+    floor.material.opacity = cur.room;
+    helpers.forEach((hp) => { hp.visible = cur.room > 0.6; });
+
+    // Sway like three.js' instancing/scatter example; scrolling pushes the clock forward.
+    if (!reduce) spin += (scrollY * SCROLL_SPIN - spin) * (1 - Math.exp(-dt * 6));
+    const time = (reduce ? 0 : t / 1000) + spin;
+    knot.rotation.x = Math.sin(time / 4);
+    knot.rotation.y = Math.sin(time / 2);
     renderer.render(scene, camera);
   }
 
+  new ResizeObserver(() => { fit(); if (reduce) frame(0); }).observe(stage);
+  fit();
   holder.classList.add("has-3d");
-  return { setWorld, render, renderer };
+  return { frame, renderer };
 }
 
-// Follow body[data-room]: run the loop only while a room is open on a wide screen.
-async function sync() {
-  const room = document.body.dataset.room;
-  const show = !!room && wide.matches;
-  if (show && room === live) return; // re-render of the same room (e.g. language switch)
-  if (app) app.renderer.setAnimationLoop(null);
-  live = show ? room : null;
-  if (!show) return;
-  try {
-    app = app || await (booting = booting || boot());
-  } catch (e) {
-    return; // no WebGL or CDN unreachable: the CSS tubes remain
+boot().then((app) => {
+  if (reduce) {
+    // No motion: just redraw when the room changes.
+    app.frame(0);
+    new MutationObserver(() => app.frame(0)).observe(document.body, { attributes: true, attributeFilter: ["data-room"] });
+    return;
   }
-  if (live !== room) return; // the visitor moved on while three.js was loading
-  app.setWorld(room);
-  if (reduce) app.render(1200);
-  else app.renderer.setAnimationLoop(app.render);
-}
-
-new MutationObserver(sync).observe(document.body, { attributes: true, attributeFilter: ["data-room"] });
-wide.addEventListener("change", sync);
-sync();
+  // Only animate while the stage is on screen.
+  new IntersectionObserver(([e]) => app.renderer.setAnimationLoop(e.isIntersecting ? app.frame : null)).observe(stage);
+}).catch(() => {}); // no WebGL or CDN unreachable: the CSS tubes remain

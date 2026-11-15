@@ -5,7 +5,7 @@ Personal portfolio site for Nguyen Van Thuan (software engineer, Da Nang). Full 
 ## Stack
 - Plain static site: `index.html`, `assets/css/style.css`, `assets/js/{content,main,stage-fx}.js`, plus the ES module `assets/js/room-3d.js`.
 - No framework, no bundler, no npm dependencies. Do not introduce a build step unless the user asks.
-- One approved exception: three.js, pinned to `0.160.0`, loaded from jsDelivr through the importmap in `index.html`. Only `room-3d.js` uses it, imported lazily the first time a room opens on a wide screen; the CSS tubes are the fallback when WebGL or the CDN is unavailable.
+- One approved exception: three.js, pinned to `0.160.0`, loaded from jsDelivr through the importmap in `index.html`. Only `room-3d.js` uses it: one canvas across the stage with a torus knot that sways behind the extensions, follows scroll, and flies into a room's left column. The CSS room tubes are the fallback when WebGL or the CDN is unavailable.
 - Preview: `npx serve .` or `python3 -m http.server`.
 
 ## Rules
