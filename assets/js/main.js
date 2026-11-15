@@ -85,6 +85,7 @@ function renderRoom() {
       const el = document.getElementById(id), cls = id === "sweep" ? "run" : "swap";
       el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
     });
+    document.getElementById("room-card").scrollTop = 0; // each room starts at its title
     shownRoom = r;
   }
   const next = ROOMS[(ROOMS.indexOf(r) + 1) % ROOMS.length];

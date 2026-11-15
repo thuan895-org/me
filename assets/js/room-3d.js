@@ -1,6 +1,8 @@
-/* 3D hero: a torus knot under three area lights (one per extension), drawn on one canvas across the stage.
-   On the stage it sways in the background and scrolling pushes the sway along; opening a room flies it into the
-   left column, where the light panels and a glossy floor come up around it.
+/* 3D hero: a torus knot under three area lights (one per extension), drawn on one canvas fixed to the viewport.
+   On the stage it sways behind the extensions. Scrolling down carries it up with the page for a moment, then it
+   drifts back to the middle of the screen (inertia) and stays with the reader, smaller and dimmer, behind the text;
+   scrolling also pushes the sway along. Opening a room flies it into the left column, where the light panels and a
+   glossy floor come up around it.
    three.js loads from the CDN (see the importmap in index.html); without WebGL or the CDN nothing is drawn and
    the CSS tubes in the room stay as the fallback. */
 const stage = document.getElementById("stage");
@@ -15,6 +17,8 @@ const WORLDS = {
   ai: { p: 2, q: 5, side: 6, mid: "--signal", midI: 5 }
 };
 const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a room
+const PAGE_SCALE = 1.4;   // ...and a little smaller once it follows the reader down the page
+const PAGE_DIM = 0.55;    // how much it fades behind the text
 const SCROLL_SPIN = 0.01; // seconds of sway per scrolled pixel
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -29,7 +33,7 @@ async function boot() {
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
   renderer.domElement.className = "stage-3d";
   renderer.domElement.setAttribute("aria-hidden", "true");
-  stage.insertBefore(renderer.domElement, document.getElementById("floor"));
+  document.body.insertBefore(renderer.domElement, stage);
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 1, 200);
@@ -74,7 +78,7 @@ async function boot() {
   // the rig, so the knot and the panels behind it share one vanishing point and stay lined up anywhere.
   let w = 1, h = 1;
   function fit() {
-    w = stage.clientWidth; h = stage.clientHeight;
+    w = innerWidth; h = innerHeight;
     renderer.setSize(w, h, false);
     const col = holder.getBoundingClientRect();
     const upp = col.width ? Math.max(15 / col.width, 13 / col.height) : 15 / (w * 0.9); // world units per pixel
@@ -83,7 +87,7 @@ async function boot() {
     camera.lookAt(0, 0, 0);
   }
 
-  // Draw the origin at stage pixel (x, y).
+  // Draw the origin at viewport pixel (x, y).
   function aim(x, y) {
     camera.setViewOffset(w, h, w / 2 - x, h / 2 - y, w, h);
     camera.updateProjectionMatrix();
@@ -102,18 +106,22 @@ async function boot() {
     });
   }
 
-  // Where the rig should be right now: centred behind the extensions, or in the room's left column.
+  // How far the reader has left the stage: 0 at the top, 1 once the stage is mostly scrolled away.
+  const away = () => Math.min(Math.max(scrollY / (stage.offsetHeight * 0.6), 0), 1);
+
+  // Where the rig should be right now (viewport px): the room's left column, or behind the extensions at the top
+  // of the page, easing to the middle of the screen as the reader scrolls on.
   function target() {
-    const room = document.body.dataset.room;
-    const sr = stage.getBoundingClientRect(), col = holder.getBoundingClientRect();
-    if (room && col.width) {
-      return { x: col.left - sr.left + col.width / 2, y: col.top - sr.top + col.height / 2, scale: 1, room: 1 };
+    const col = holder.getBoundingClientRect(), a = away();
+    if (document.body.dataset.room && col.width) {
+      return { x: col.left + col.width / 2, y: col.top + col.height / 2, scale: 1, room: 1, a };
     }
-    return { x: w / 2, y: h * 0.42, scale: STAGE_SCALE, room: 0 };
+    const top = stage.offsetHeight * 0.42;
+    return { x: w / 2, y: top + (h / 2 - top) * a, scale: STAGE_SCALE + (PAGE_SCALE - STAGE_SCALE) * a, room: 0, a };
   }
 
-  const cur = { x: null, y: 0, scale: STAGE_SCALE, room: 0 };
-  let spin = scrollY * SCROLL_SPIN, last = 0;
+  const cur = { x: null, y: 0, scale: STAGE_SCALE, room: 0, a: 0 };
+  let spin = scrollY * SCROLL_SPIN, last = 0, lastScroll = scrollY;
 
   function frame(t) {
     const dt = last ? Math.min((t - last) / 1000, 0.1) : 1;
@@ -122,12 +130,17 @@ async function boot() {
     const tg = target();
     const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
     if (cur.x === null) { cur.x = tg.x; cur.y = tg.y; }
+    // Inertia: the knot first rides along with the page, then the spring below pulls it back to its spot.
+    if (!reduce) cur.y -= scrollY - lastScroll;
+    lastScroll = scrollY;
     cur.x += (tg.x - cur.x) * k;
-    cur.y += (tg.y - cur.y) * k;
+    cur.y += (tg.y - cur.y) * (reduce ? 1 : 1 - Math.exp(-dt * 2.5));
     cur.scale += (tg.scale - cur.scale) * k;
     cur.room += (tg.room - cur.room) * k;
+    cur.a += (tg.a - cur.a) * k;
     aim(cur.x, cur.y);
     knot.scale.setScalar(cur.scale);
+    renderer.domElement.style.opacity = String(1 - PAGE_DIM * cur.a);
 
     // Panels and floor only belong to a room: they come up as the knot settles in.
     floor.material.opacity = cur.room;
@@ -141,20 +154,19 @@ async function boot() {
     renderer.render(scene, camera);
   }
 
-  new ResizeObserver(() => { fit(); if (reduce) frame(0); }).observe(stage);
+  addEventListener("resize", () => { fit(); if (reduce) frame(0); });
   fit();
   holder.classList.add("has-3d");
   return { frame, renderer };
 }
 
 boot().then((app) => {
-  // Animate only while the stage is on screen and motion is on; otherwise draw still frames on change.
-  let onScreen = true;
+  // Animate while motion is on; otherwise draw still frames when something changes.
   const run = () => {
-    app.renderer.setAnimationLoop(onScreen && !reduce ? app.frame : null);
+    app.renderer.setAnimationLoop(reduce ? null : app.frame);
     if (reduce) app.frame(0);
   };
-  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; run(); }).observe(stage);
+  addEventListener("scroll", () => { if (reduce) app.frame(0); }, { passive: true });
   new MutationObserver(() => { if (reduce) app.frame(0); }).observe(document.body, { attributes: true, attributeFilter: ["data-room"] });
   document.addEventListener("motionchange", () => { reduce = document.documentElement.dataset.motion === "off"; run(); });
   run();
