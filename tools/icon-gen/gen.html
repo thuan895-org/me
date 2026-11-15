@@ -1,0 +1,136 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>icon gen</title>
+<!-- Draws the site icons from the 3D knot (a 2,3 trefoil) with the real brand fonts. How to run: see server.py. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@900&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>body{background:#888;margin:16px;font:12px sans-serif} img,canvas{display:block;margin:8px 0;background:repeating-conic-gradient(#ccc 0 25%,#eee 0 50%) 0 0/16px 16px}</style>
+<div id="out"></div>
+<script>
+// Brand colours = dark-theme tokens from assets/css/style.css
+const VOID = "#040708", STAGE = "#071012", INK = "#e9f2ef", MUTE = "#84948f", TEXT2 = "#c9d6d2", SIGNAL = "#43f5ac", LIGHT = "#f4fbf8";
+
+// Trefoil (the site's knot is TorusKnot p=2, q=3): x = sin t + 2 sin 2t, y = cos t - 2 cos 2t, depth z = -sin 3t.
+const N = 1440;
+const P = Array.from({ length: N }, (_, i) => {
+  const t = (i / N) * Math.PI * 2;
+  return { t, x: Math.sin(t) + 2 * Math.sin(2 * t), y: -(Math.cos(t) - 2 * Math.cos(2 * t)), z: -Math.sin(3 * t) };
+});
+
+// Crossings: two far-apart samples at the same point; the strand nearer the viewer (higher z) goes over.
+const overs = [];
+for (let i = 0; i < N; i++) for (let j = i + 60; j < N; j++) {
+  if (Math.min(j - i, N - (j - i)) < 60) continue;
+  const d = Math.hypot(P[i].x - P[j].x, P[i].y - P[j].y);
+  if (d < 0.02) {
+    const o = P[i].z > P[j].z ? i : j;
+    if (!overs.some((k) => Math.min(Math.abs(k - o), N - Math.abs(k - o)) < 40)) overs.push(o);
+  }
+}
+const ARC = Math.round(N * 0.05); // half-length of the over-pass, in samples
+
+function arc(o, extra = 0) { const a = []; for (let k = -ARC - extra; k <= ARC + extra; k++) a.push(P[(o + k + N) % N]); return a; }
+
+function knot(ctx, cx, cy, s, w, gap, color, bg) {
+  ctx.save();
+  ctx.lineJoin = "round";
+  ctx.beginPath();
+  P.forEach((p, i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, cx + p.x * s, cy + p.y * s));
+  ctx.closePath();
+  ctx.strokeStyle = color; ctx.lineWidth = w * s; ctx.stroke();
+  for (const o of overs) {
+    // Gap in the background colour, then the over-strand redrawn a little longer with round caps to hide seams.
+    const line = (a) => { ctx.beginPath(); a.forEach((p, i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, cx + p.x * s, cy + p.y * s)); };
+    // bg === null: erase the gap (transparent) instead of painting it, so whatever is behind shows through.
+    line(arc(o)); ctx.lineCap = "butt"; ctx.lineWidth = (w + 2 * gap) * s;
+    if (bg) { ctx.strokeStyle = bg; ctx.stroke(); }
+    else { ctx.globalCompositeOperation = "destination-out"; ctx.stroke(); ctx.globalCompositeOperation = "source-over"; }
+    line(arc(o, 12)); ctx.lineCap = "round"; ctx.strokeStyle = color; ctx.lineWidth = w * s; ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function svgIcon() {
+  const S = 64, s = 7.2, cx = 32, cy = 33.5, w = 0.62, gap = 0.34;
+  const pt = (p) => `${(cx + p.x * s).toFixed(2)} ${(cy + p.y * s).toFixed(2)}`;
+  const step = 8;
+  const full = "M" + P.filter((_, i) => i % step === 0).map(pt).join("L") + "Z";
+  const arcs = overs.map((o) => "M" + arc(o).filter((_, i) => i % 4 === 0).map(pt).join("L")).join("");
+  const longArcs = overs.map((o) => "M" + arc(o, 12).filter((_, i) => i % 4 === 0).map(pt).join("L")).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}">
+<rect width="64" height="64" rx="14" fill="${VOID}"/>
+<g fill="none" stroke-linejoin="round">
+<path d="${full}" stroke="${SIGNAL}" stroke-width="${(w * s).toFixed(2)}"/>
+<path d="${arcs}" stroke="${VOID}" stroke-width="${((w + 2 * gap) * s).toFixed(2)}"/>
+<path d="${longArcs}" stroke="${SIGNAL}" stroke-width="${(w * s).toFixed(2)}" stroke-linecap="round"/>
+</g>
+</svg>
+`;
+}
+
+function tile(size, round) {
+  const c = document.createElement("canvas"); c.width = c.height = size;
+  const g = c.getContext("2d");
+  g.fillStyle = VOID;
+  if (round) { g.beginPath(); g.roundRect(0, 0, size, size, size * 0.22); g.fill(); } else g.fillRect(0, 0, size, size);
+  const s = size * (round ? 0.1125 : 0.1);
+  knot(g, size / 2, size * 0.523, s, size <= 32 ? 0.7 : 0.62, size <= 32 ? 0.3 : 0.34, SIGNAL, VOID);
+  return c;
+}
+
+function og() {
+  const c = document.createElement("canvas"); c.width = 1200; c.height = 630;
+  const g = c.getContext("2d");
+  g.fillStyle = VOID; g.fillRect(0, 0, 1200, 630);
+  let r = g.createRadialGradient(330, 330, 0, 330, 330, 430);
+  r.addColorStop(0, "rgba(67,245,172,0.16)"); r.addColorStop(1, "rgba(67,245,172,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 1200, 630);
+  r = g.createRadialGradient(600, 640, 0, 600, 640, 520);
+  r.addColorStop(0, "#0f2421"); r.addColorStop(1, "rgba(15,36,33,0)");
+  g.fillStyle = r; g.fillRect(0, 0, 1200, 630);
+
+  // Three lamps behind the knot: white, the line, white (the three extensions).
+  [[205, 7, LIGHT, 0.55], [330, 16, SIGNAL, 0.9], [455, 7, LIGHT, 0.55]].forEach(([x, wd, col, a]) => {
+    g.save(); g.globalAlpha = a; g.shadowColor = col; g.shadowBlur = 28; g.fillStyle = col;
+    g.beginPath(); g.roundRect(x - wd / 2, 95, wd, 440, wd / 2); g.fill(); g.restore();
+  });
+
+  // Knot drawn on its own layer with see-through gaps, then laid over the lamps with a glow.
+  const k = document.createElement("canvas"); k.width = 1200; k.height = 630;
+  knot(k.getContext("2d"), 330, 330, 58, 0.5, 0.3, SIGNAL, null);
+  g.save(); g.shadowColor = "rgba(67,245,172,0.6)"; g.shadowBlur = 40; g.drawImage(k, 0, 0); g.restore();
+
+  // Text block
+  const x = 640;
+  g.fillStyle = MUTE; g.font = "500 22px 'IBM Plex Mono'"; g.letterSpacing = "4px";
+  g.fillText("SOFTWARE ENGINEER · DA NANG", x, 170);
+  g.fillStyle = INK; g.font = "italic 900 104px 'Big Shoulders Display'"; g.letterSpacing = "2px";
+  g.fillText("NGUYEN VAN", x, 290); g.fillText("THUAN", x, 390);
+  g.fillStyle = TEXT2; g.font = "400 27px 'IBM Plex Sans'"; g.letterSpacing = "0px";
+  g.fillText("Java · Node.js/NestJS · CPaaS · AI/MCP", x, 450);
+  g.fillStyle = SIGNAL; g.shadowColor = SIGNAL; g.shadowBlur = 14;
+  g.beginPath(); g.arc(x + 7, 522, 7, 0, Math.PI * 2); g.fill(); g.shadowBlur = 0;
+  g.font = "500 26px 'IBM Plex Mono'"; g.letterSpacing = "1px";
+  g.fillText("www.thuanday.blog", x + 28, 531);
+  return c;
+}
+
+const b64 = (c) => c.toDataURL("image/png").split(",")[1];
+
+async function run(save) {
+  await Promise.all(["italic 900 104px 'Big Shoulders Display'", "500 22px 'IBM Plex Mono'", "400 27px 'IBM Plex Sans'"].map((f) => document.fonts.load(f)));
+  const out = document.getElementById("out"); out.innerHTML = `crossings: ${overs.length}`;
+  const svg = svgIcon();
+  const imgs = { "favicon.svg": svg };
+  const files = [{ name: "favicon.svg", text: svg }];
+  for (const [name, size, round, ico] of [["favicon-16.png", 16, true, 16], ["favicon-32.png", 32, true, 32], ["favicon-48.png", 48, true, 48], ["apple-touch-icon.png", 180, false]]) {
+    const c = tile(size, round); out.append(name, c);
+    files.push({ name, b64: b64(c), ico });
+  }
+  const o = og(); out.append("og-image.png", o); files.push({ name: "og-image.png", b64: b64(o) });
+  const im = new Image(); im.src = "data:image/svg+xml;utf8," + encodeURIComponent(svg); im.width = 128; out.append("favicon.svg", im);
+  if (!save) return overs.length;
+  const r = await fetch("/save", { method: "POST", body: JSON.stringify({ files }) });
+  return r.json();
+}
+run(false);
+</script>

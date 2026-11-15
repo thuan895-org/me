@@ -28,13 +28,16 @@ Không cần `npm install`. Font tải từ Google Fonts và three.js tải từ
 ```
 me/
 ├── index.html              # Khung trang: sân khấu (stage), 3 máy nhánh, phòng chi tiết, các section CV
+├── favicon.ico             # Favicon 16/32/48 cho trình duyệt cũ và crawler
 ├── assets/
 │   ├── css/style.css       # Toàn bộ style. Design tokens nằm ở khối :root đầu file
+│   ├── icon/               # favicon.svg, apple-touch-icon.png, og-image.png (1200×630)
 │   └── js/
 │       ├── content.js      # TOÀN BỘ NỘI DUNG chữ (EN + VI): ROOMS, EXT, T
 │       ├── main.js         # Logic: đổi ngôn ngữ, điều hướng phòng theo #hash, nút copy
 │       ├── stage-fx.js     # Hiệu ứng canvas: bụi bay + phản chiếu đèn trên sàn ướt + nền riêng từng phòng
 │       └── room-3d.js      # ES module: khối nút xoắn 3D (three.js) ở sảnh và trong phòng
+├── tools/icon-gen/         # Công cụ vẽ lại icon/og-image (không deploy, xem .vercelignore)
 ├── CLAUDE.md               # Quy ước ngắn gọn cho Claude Code
 └── README.md
 ```
@@ -150,14 +153,19 @@ Trang đang chạy trên **Vercel** (gói Hobby, miễn phí):
 
 Nhớ thêm link vào CV, LinkedIn (phần Contact info → Website) và GitHub profile.
 
+### Icon và ảnh chia sẻ
+- Biểu tượng là nút xoắn 3 thuỳ (trefoil, chính là khối 3D `TorusKnot` p=2, q=3) vẽ phẳng, màu `--signal` trên nền `--void` của theme tối.
+- Vẽ lại (ví dụ khi đổi tên miền in trên `og-image.png`): chạy `python -I tools/icon-gen/server.py`, mở http://127.0.0.1:5199/, rồi gõ `await run(true)` trong console. Công cụ dùng canvas của trình duyệt và font thật của trang, không cần cài gì thêm; file được ghi đè vào `assets/icon/` và `favicon.ico`.
+- LinkedIn lưu ảnh xem trước rất lâu; sau khi đổi ảnh, dùng LinkedIn Post Inspector để làm mới.
+
 ---
 
 ## 7. Việc còn lại (TODO)
 
 - [x] Deploy lên Vercel, tên miền `www.thuanday.blog`.
 - [ ] Gắn link vào CV/LinkedIn/GitHub profile.
-- [ ] Ảnh Open Graph (`og:image`) 1200×630 để khi chia sẻ link có ảnh đẹp.
-- [ ] Favicon.
+- [x] Ảnh Open Graph (`og:image`) 1200×630 để khi chia sẻ link có ảnh đẹp.
+- [x] Favicon.
 - [ ] Bản CV PDF cùng phong cách + nút "Download CV" (đặt file vào `assets/` và link tới).
 - [ ] Thêm số liệu cụ thể cho phòng Migration nếu có (ví dụ % giảm tài nguyên server).
 - [ ] Repo GitHub mẫu (MCP server bằng NestJS) rồi thêm phòng/khối "Projects" trỏ tới.
