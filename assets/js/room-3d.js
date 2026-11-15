@@ -1,8 +1,9 @@
 /* 3D hero: a torus knot under three area lights (one per extension), drawn on one canvas fixed to the viewport.
-   On the stage it sways behind the extensions. As the reader scrolls down it glides to the middle of the screen
-   and stays with them, dimmer, behind the text; scrolling also pushes the sway along. The knot never reads the raw
-   scroll position: it follows a smoothed, slightly delayed copy (SCROLL_EASE), so wheel steps don't make it judder. Opening a room flies it into the left column, where the light panels and a
-   glossy floor come up around it.
+   On the stage it sways behind the extensions. Further down it belongs to the page: it rests beside the section
+   being read and scrolls with it like content, and when the reader moves on to another section it slides slowly
+   down (or up) the page to that one (SLIDE_EASE), dimmer, behind the text. Scrolling also pushes the sway along,
+   through a smoothed copy of the scroll position so wheel steps don't make it judder. Opening a room flies it into
+   the left column, where the light panels and a glossy floor come up around it.
    three.js loads from the CDN (see the importmap in index.html); without WebGL or the CDN nothing is drawn and
    the CSS tubes in the room stay as the fallback. */
 const stage = document.getElementById("stage");
@@ -20,7 +21,9 @@ const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a 
 const PAGE_SCALE = 2.1;   // ...and a touch bigger once it follows the reader down the page
 const PAGE_DIM = 0.55;    // how much it fades behind the text
 const SCROLL_SPIN = 0.01; // seconds of sway per scrolled pixel
-const SCROLL_EASE = 1.8;  // how fast the smoothed scroll catches up (per second); lower = longer delay
+const SCROLL_EASE = 1.8;  // how fast the smoothed scroll (sway) catches up, per second
+const SLIDE_EASE = 1.6;   // how fast the knot slides to the next section, per second; lower = slower
+const SIDE = 0.74;        // on wide screens the knot rests right of centre (fraction of width), clear of the text
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -107,19 +110,22 @@ async function boot() {
     });
   }
 
-  // How far the reader has left the stage: 0 at the top, 1 once the stage is mostly scrolled away.
-  let eased = scrollY; // smoothed scroll position, updated every frame
-  const away = () => Math.min(Math.max(eased / (stage.offsetHeight * 0.6), 0), 1);
+  let eased = scrollY; // smoothed scroll position for the sway
+  const sections = Array.from(document.querySelectorAll("main .section"));
 
-  // Where the rig should be right now (viewport px): the room's left column, or behind the extensions at the top
-  // of the page, easing to the middle of the screen as the reader scrolls on.
-  function target() {
-    const col = holder.getBoundingClientRect(), a = away();
-    if (document.body.dataset.room && col.width) {
-      return { x: col.left + col.width / 2, y: col.top + col.height / 2, scale: 1, room: 1, a };
-    }
-    const top = stage.offsetHeight * 0.42;
-    return { x: w / 2, y: top + (h / 2 - top) * a, scale: STAGE_SCALE + (PAGE_SCALE - STAGE_SCALE) * a, room: 0, a };
+  // Resting spots on the page (page px, not viewport): behind the extensions, then the middle of each section.
+  function anchors() {
+    const side = innerWidth > 760 ? w * SIDE : w / 2;
+    return [{ x: w / 2, y: stage.offsetHeight * 0.42, a: 0 }].concat(sections.map((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: side, y: r.top + scrollY + r.height / 2, a: 1 };
+    }));
+  }
+
+  // The spot for the section nearest the middle of the screen.
+  function spot() {
+    const mid = scrollY + h / 2;
+    return anchors().reduce((best, p) => (Math.abs(p.y - mid) < Math.abs(best.y - mid) ? p : best));
   }
 
   const cur = { x: null, y: 0, scale: STAGE_SCALE, room: 0, a: 0 };
@@ -130,15 +136,22 @@ async function boot() {
     last = t;
     setWorld(document.body.dataset.room || "stage");
     eased += (scrollY - eased) * (reduce ? 1 : 1 - Math.exp(-dt * SCROLL_EASE));
-    const tg = target();
     const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
+    const col = holder.getBoundingClientRect();
+    const inRoom = !!document.body.dataset.room && col.width > 0;
+    // cur.x / cur.y live in page px; the viewport position is cur.y - scrollY, so between slides the knot scrolls
+    // exactly like the content around it.
+    const tg = inRoom
+      ? { x: col.left + col.width / 2, y: col.top + scrollY + col.height / 2, a: 0 }
+      : spot();
     if (cur.x === null) { cur.x = tg.x; cur.y = tg.y; }
-    cur.x += (tg.x - cur.x) * k;
-    cur.y += (tg.y - cur.y) * k;
-    cur.scale += (tg.scale - cur.scale) * k;
-    cur.room += (tg.room - cur.room) * k;
+    const slide = inRoom ? k : reduce ? 1 : 1 - Math.exp(-dt * SLIDE_EASE);
+    cur.x += (tg.x - cur.x) * slide;
+    cur.y += (tg.y - cur.y) * slide;
+    cur.scale += ((inRoom ? 1 : STAGE_SCALE + (PAGE_SCALE - STAGE_SCALE) * tg.a) - cur.scale) * k;
+    cur.room += ((inRoom ? 1 : 0) - cur.room) * k;
     cur.a += (tg.a - cur.a) * k;
-    aim(cur.x, cur.y);
+    aim(cur.x, cur.y - scrollY);
     knot.scale.setScalar(cur.scale);
     renderer.domElement.style.opacity = String(1 - PAGE_DIM * cur.a);
 
