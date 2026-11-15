@@ -246,6 +246,42 @@ body[data-room] .stage {
 }
 .nameplate { transition: opacity 0.4s; }
 
+/* Worlds: past (legacy CRT), present (live line, the default above), future (clean light) */
+body[data-room="migration"] .stage {
+  background:
+    radial-gradient(45% 55% at 28% 55%, rgba(244, 251, 248, 0.07) 0%, transparent 70%),
+    var(--void);
+}
+body[data-room="migration"] .room-light .tube i:nth-child(2) { background: var(--mute); box-shadow: 0 0 14px rgba(244, 251, 248, 0.18); }
+body[data-room="migration"] .room-light .tube i { opacity: 0.7; }
+body[data-room="ai"] .stage {
+  background:
+    radial-gradient(55% 45% at 28% 20%, rgba(244, 251, 248, 0.1) 0%, transparent 70%),
+    radial-gradient(45% 55% at 28% 60%, rgba(67, 245, 172, 0.1) 0%, transparent 70%),
+    var(--stage);
+}
+body[data-room="ai"] .room-light .tube i { box-shadow: 0 0 18px rgba(244, 251, 248, 0.75), 0 0 60px rgba(244, 251, 248, 0.3); }
+
+/* Switching rooms: a band of light sweeps the stage, the card patches back in */
+.sweep {
+  position: absolute; z-index: 5; inset: 0; pointer-events: none; overflow: hidden;
+}
+.sweep::before {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 45%;
+  background: linear-gradient(90deg, transparent, var(--signal-soft) 40%, rgba(67, 245, 172, 0.35) 50%, var(--signal-soft) 60%, transparent);
+  transform: translateX(-110%);
+}
+.sweep.run::before { animation: sweep 0.75s cubic-bezier(.5,0,.3,1); }
+@keyframes sweep { to { transform: translateX(260%); } }
+.room-card.swap { animation: patch 0.6s 0.2s cubic-bezier(.2,.7,.2,1) backwards; }
+@keyframes patch { from { opacity: 0; transform: translateY(12px); } }
+
+/* Close-up: the room's glyph draws itself in, stroke by stroke */
+.room-light .glyph svg * { stroke-dasharray: 1; }
+body[data-room] .room-light .glyph svg *:not(.solid) { animation: draw 1.4s 0.35s cubic-bezier(.6,0,.2,1) backwards; }
+body[data-room] .room-light .glyph svg .solid { animation: patch 0.4s 1.4s backwards; }
+@keyframes draw { from { stroke-dashoffset: 1; } }
+
 /* ---------- Below stage ---------- */
 .wrap {
   width: min(1040px, 100%); margin-inline: auto;

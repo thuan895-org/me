@@ -57,17 +57,29 @@ function currentRoom() {
   return ROOMS.includes(h) ? h : null;
 }
 
+let shownRoom = null;
+
 function renderRoom() {
   const r = currentRoom();
   // Hidden layers stay out of the Tab order and the accessibility tree.
   document.getElementById("floor").inert = !!r;
   document.querySelector(".nameplate").inert = !!r;
   document.getElementById("room").inert = !r;
-  if (!r) { delete document.body.dataset.room; return; }
+  if (!r) { delete document.body.dataset.room; shownRoom = null; return; }
   document.body.dataset.room = r;
   const d = T[lang], c = d.rooms[r];
-  const src = document.querySelector(`.exhibit[data-room="${r}"] .glyph`);
-  document.getElementById("room-glyph").innerHTML = src ? src.innerHTML : "";
+  if (r !== shownRoom) {
+    // New room: copy its glyph (pathLength lets CSS draw each stroke in) and replay the transition.
+    const src = document.querySelector(`.exhibit[data-room="${r}"] .glyph`);
+    const glyph = document.getElementById("room-glyph");
+    glyph.innerHTML = src ? src.innerHTML : "";
+    glyph.querySelectorAll("svg *").forEach((el) => el.setAttribute("pathLength", "1"));
+    ["sweep", "room-card"].forEach((id) => {
+      const el = document.getElementById(id), cls = id === "sweep" ? "run" : "swap";
+      el.classList.remove(cls); void el.offsetWidth; el.classList.add(cls);
+    });
+    shownRoom = r;
+  }
   const next = ROOMS[(ROOMS.indexOf(r) + 1) % ROOMS.length];
   document.getElementById("room-card").innerHTML = `
     <div class="call-state"><span class="led" aria-hidden="true"></span><span class="label">${esc(d.connected)} · ${EXT[r]}</span></div>
