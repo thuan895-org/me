@@ -5,7 +5,7 @@
    the CSS tubes in the room stay as the fallback. */
 const stage = document.getElementById("stage");
 const holder = document.querySelector(".room-light");
-const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let reduce = document.documentElement.dataset.motion === "off"; // set by main.js, toggled by the Motion button
 
 // Each world gets its own knot (p, q turns) and light mood; the middle panel is the extension's own line.
 const WORLDS = {
@@ -145,12 +145,14 @@ async function boot() {
 }
 
 boot().then((app) => {
-  if (reduce) {
-    // No motion: just redraw when the room changes.
-    app.frame(0);
-    new MutationObserver(() => app.frame(0)).observe(document.body, { attributes: true, attributeFilter: ["data-room"] });
-    return;
-  }
-  // Only animate while the stage is on screen.
-  new IntersectionObserver(([e]) => app.renderer.setAnimationLoop(e.isIntersecting ? app.frame : null)).observe(stage);
+  // Animate only while the stage is on screen and motion is on; otherwise draw still frames on change.
+  let onScreen = true;
+  const run = () => {
+    app.renderer.setAnimationLoop(onScreen && !reduce ? app.frame : null);
+    if (reduce) app.frame(0);
+  };
+  new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; run(); }).observe(stage);
+  new MutationObserver(() => { if (reduce) app.frame(0); }).observe(document.body, { attributes: true, attributeFilter: ["data-room"] });
+  document.addEventListener("motionchange", () => { reduce = document.documentElement.dataset.motion === "off"; run(); });
+  run();
 }).catch(() => {}); // no WebGL or CDN unreachable: the CSS tubes remain

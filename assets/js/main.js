@@ -2,6 +2,12 @@
 let lang = "en";
 try { const s = localStorage.getItem("lang"); if (s === "vi" || s === "en") lang = s; } catch (e) {}
 
+// Motion follows the OS "reduce motion" setting until the visitor picks with the Motion button (remembered).
+// stage-fx.js and room-3d.js read html[data-motion] and listen for "motionchange".
+let reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+try { const m = localStorage.getItem("motion"); if (m === "on" || m === "off") reduce = m === "off"; } catch (e) {}
+document.documentElement.dataset.motion = reduce ? "off" : "on";
+
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 function applyLang() {
@@ -10,6 +16,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n]").forEach((el) => { el.innerHTML = d[el.dataset.i18n]; });
   document.querySelectorAll("[data-i18n-label]").forEach((el) => { el.setAttribute("aria-label", d[el.dataset.i18nLabel]); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
+  document.getElementById("motion").setAttribute("aria-pressed", String(!reduce));
   document.getElementById("log").innerHTML = `
     <div class="cdr-head reveal" style="--i:0"><span class="label">${esc(d.cdr)}</span><span class="label">${d.log.length} ${esc(d.records)}</span></div>` + d.log.map((r, i) => {
     const head = `<span class="log-role">${esc(r.role)}</span><span class="log-org">${esc(r.org)}</span>`;
@@ -133,6 +140,14 @@ document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("cli
   applyLang();
 }));
 
+document.getElementById("motion").addEventListener("click", (e) => {
+  reduce = !reduce;
+  try { localStorage.setItem("motion", reduce ? "off" : "on"); } catch (err) {}
+  document.documentElement.dataset.motion = reduce ? "off" : "on";
+  e.currentTarget.setAttribute("aria-pressed", String(!reduce));
+  document.dispatchEvent(new Event("motionchange"));
+});
+
 document.getElementById("to-contact").addEventListener("click", () => {
   document.getElementById("contact").scrollIntoView({ behavior: "smooth", block: "start" });
 });
@@ -149,7 +164,6 @@ applyLang();
 
 /* ---------- Scroll: sections "patch in" as they reach the viewport ---------- */
 (function () {
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const sections = document.querySelectorAll("main .section");
   const counters = document.querySelectorAll("[data-count]");
 
@@ -175,6 +189,12 @@ applyLang();
       io.unobserve(en.target);
     }), { rootMargin: "0px 0px -12% 0px" });
     sections.forEach((s) => io.observe(s));
+    // Motion switched off mid-page: show everything that has not patched in yet.
+    document.addEventListener("motionchange", () => {
+      if (!reduce) return;
+      sections.forEach((s) => { if (!s.classList.contains("is-lit")) { s.classList.add("is-lit"); io.unobserve(s); } });
+      counters.forEach((el) => { el.textContent = el.dataset.count + (el.dataset.suffix || ""); });
+    });
   }
 
   // Signal meter: bars light up with scroll depth; shown once the stage is behind you.
@@ -203,7 +223,6 @@ applyLang();
 
 /* ---------- Dialer: type 101–103 anywhere to patch through; IVR keys in Contact ---------- */
 (function () {
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const dialer = document.getElementById("dialer");
   const num = document.getElementById("dialer-num");
   const state = document.getElementById("dialer-state");

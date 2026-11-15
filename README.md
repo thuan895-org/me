@@ -95,6 +95,11 @@ Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải l�
 - Nội dung phòng (`T[lang].rooms`) và call log (`T[lang].log`) được render bằng JS trong `main.js`.
 - Ngôn ngữ đã chọn được nhớ trong `localStorage` (bọc try/catch, lỗi thì mặc định EN).
 
+### Nút Chuyển động (Motion)
+- Mặc định trang làm theo cài đặt giảm chuyển động của hệ điều hành (`prefers-reduced-motion`; trên Windows là Settings → Accessibility → Visual effects → Animation effects).
+- Nút "Motion / Chuyển động" trên thanh trên cùng cho khách tự bật/tắt; lựa chọn được nhớ trong `localStorage` (`motion`).
+- Trạng thái nằm ở `html[data-motion="on|off"]`; CSS tắt animation theo thuộc tính này, còn `stage-fx.js` và `room-3d.js` nghe sự kiện `motionchange`.
+
 ### Hiệu ứng (`stage-fx.js`)
 - Canvas phủ toàn sân khấu: hạt bụi bay chậm + vệt phản chiếu dưới mỗi ống đèn.
 - Mỗi frame đọc vị trí các ống đèn bằng `getBoundingClientRect()` nên tự khớp khi đổi kích thước hoặc vào phòng.

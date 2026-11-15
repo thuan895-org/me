@@ -81,6 +81,19 @@ button { font: inherit; color: inherit; }
   transition: background 0.2s, color 0.2s;
 }
 .btn-outline:hover { background: var(--ink); color: var(--void); }
+.motion {
+  display: flex; align-items: center; gap: 8px;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+  background: none; border: 0; padding: 6px; cursor: pointer; color: var(--mute);
+}
+.motion-dot { width: 22px; height: 12px; border: 1px solid var(--mute); border-radius: 6px; position: relative; flex: none; }
+.motion-dot::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--mute); transition: transform 0.2s, background 0.2s;
+}
+.motion[aria-pressed="true"] { color: var(--ink); }
+.motion[aria-pressed="true"] .motion-dot { border-color: var(--signal); }
+.motion[aria-pressed="true"] .motion-dot::after { background: var(--signal); transform: translateX(10px); box-shadow: 0 0 6px var(--signal); }
 .lang { display: flex; gap: 2px; }
 .lang button {
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
@@ -447,7 +460,9 @@ a.contact-value:hover { color: var(--signal); }
   .tube { gap: 5px; }
   .tube i { width: 4px; }
   .tube i:nth-child(2) { width: 9px; }
+  .motion-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important; }
+/* Motion off: html[data-motion] follows prefers-reduced-motion until the visitor uses the Motion button (main.js) */
+html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {
+  animation: none !important; transition-duration: 0.01ms !important; transition-delay: 0s !important;
 }

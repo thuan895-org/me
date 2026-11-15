@@ -3,7 +3,8 @@
   const stage = document.getElementById("stage");
   const cv = document.getElementById("fx");
   const ctx = cv.getContext("2d");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let reduce = document.documentElement.dataset.motion === "off"; // set by main.js, toggled by the Motion button
+  let running = false;
   let w = 0, h = 0, dpr = 1, dust = [], nodes = [], edges = [];
 
   function size() {
@@ -113,11 +114,18 @@
         ctx.fillRect(tb.x - 2 + wob * (i % 2 ? 1 : -1), y, tb.wd + 4, len / 6 - 3);
       }
     }
-    if (!reduce) requestAnimationFrame(frame);
+    if (reduce) running = false;
+    else requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (reduce) frame(0);
+    else if (!running) { running = true; requestAnimationFrame(frame); }
   }
 
   size();
   addEventListener("resize", size);
-  if (reduce) { frame(0); addEventListener("hashchange", () => setTimeout(() => frame(0), 50)); }
-  else requestAnimationFrame(frame);
+  addEventListener("hashchange", () => { if (reduce) setTimeout(() => frame(0), 50); });
+  document.addEventListener("motionchange", () => { reduce = document.documentElement.dataset.motion === "off"; start(); });
+  start();
 })();
