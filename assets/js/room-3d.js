@@ -1,9 +1,10 @@
 /* 3D hero: a torus knot under three area lights (one per extension), drawn on one canvas fixed to the viewport.
-   On the stage it sways behind the extensions. Further down it belongs to the page: it rests beside the section
-   being read and scrolls with it like content, and when the reader moves on to another section it slides slowly
-   down (or up) the page to that one (SLIDE_EASE), dimmer, behind the text. Scrolling also pushes the sway along,
-   through a smoothed copy of the scroll position so wheel steps don't make it judder. Opening a room flies it into
-   the left column, where the light panels and a glossy floor come up around it.
+   It rests at a spot on the page: behind the extensions (or, in a room, in the left column between the light
+   panels), or beside the section being read, dimmer, behind the text. While the reader scrolls (wheel, touchpad or
+   a swipe with momentum) the knot holds still on screen and never reads the scroll position, so it cannot lag or
+   judder against the page; SETTLE_DELAY after the scrolling stops it glides to the spot for what is now on screen.
+   The sway runs on time alone. Opening a room flies it into the left column, where the light panels and a glossy
+   floor come up around it; scrolling down from a room works like the main page.
    three.js loads from the CDN (see the importmap in index.html); without WebGL or the CDN nothing is drawn and
    the CSS tubes in the room stay as the fallback. */
 const stage = document.getElementById("stage");
@@ -20,9 +21,8 @@ const WORLDS = {
 const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a room
 const PAGE_SCALE = 2.1;   // ...and a touch bigger once it follows the reader down the page
 const PAGE_DIM = 0.55;    // how much it fades behind the text
-const SCROLL_SPIN = 0.01; // seconds of sway per scrolled pixel
-const SCROLL_EASE = 1.8;  // how fast the smoothed scroll (sway) catches up, per second
-const SLIDE_EASE = 1.6;   // how fast the knot slides to the next section, per second; lower = slower
+const SETTLE_DELAY = 500; // ms without scrolling before the knot moves to its new spot
+const SLIDE_EASE = 2.2;   // how fast it glides there, per second; lower = slower
 const SIDE = 0.74;        // on wide screens the knot rests right of centre (fraction of width), clear of the text
 
 const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -110,15 +110,19 @@ async function boot() {
     });
   }
 
-  let eased = scrollY; // smoothed scroll position for the sway
   const sections = Array.from(document.querySelectorAll("main .section"));
 
-  // Resting spots on the page (page px, not viewport): behind the extensions, then the middle of each section.
+  // Resting spots on the page (page px): the top spot (behind the extensions, or a room's left column with its
+  // panels), then the middle of each section.
   function anchors() {
+    const col = holder.getBoundingClientRect();
+    const top = document.body.dataset.room && col.width
+      ? { x: col.left + col.width / 2, y: col.top + scrollY + col.height / 2, scale: 1, a: 0, room: 1 }
+      : { x: w / 2, y: stage.offsetHeight * 0.42, scale: STAGE_SCALE, a: 0, room: 0 };
     const side = innerWidth > 760 ? w * SIDE : w / 2;
-    return [{ x: w / 2, y: stage.offsetHeight * 0.42, a: 0 }].concat(sections.map((el) => {
+    return [top].concat(sections.map((el) => {
       const r = el.getBoundingClientRect();
-      return { x: side, y: r.top + scrollY + r.height / 2, a: 1 };
+      return { x: side, y: r.top + scrollY + r.height / 2, scale: PAGE_SCALE, a: 1, room: 0 };
     }));
   }
 
@@ -128,6 +132,15 @@ async function boot() {
     return anchors().reduce((best, p) => (Math.abs(p.y - mid) < Math.abs(best.y - mid) ? p : best));
   }
 
+  // Scrolling = a scroll event within the last SETTLE_DELAY ms (this also covers momentum after a swipe).
+  let scrolling = false, settleTimer = 0;
+  addEventListener("scroll", () => {
+    scrolling = true;
+    clearTimeout(settleTimer);
+    settleTimer = setTimeout(() => { scrolling = false; }, SETTLE_DELAY);
+  }, { passive: true });
+
+  // cur.x / cur.y are viewport px: while scrolling nothing here moves, so the knot simply holds its place on screen.
   const cur = { x: null, y: 0, scale: STAGE_SCALE, room: 0, a: 0 };
   let last = 0;
 
@@ -135,23 +148,19 @@ async function boot() {
     const dt = last ? Math.min((t - last) / 1000, 0.1) : 1;
     last = t;
     setWorld(document.body.dataset.room || "stage");
-    eased += (scrollY - eased) * (reduce ? 1 : 1 - Math.exp(-dt * SCROLL_EASE));
-    const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
-    const col = holder.getBoundingClientRect();
-    const inRoom = !!document.body.dataset.room && col.width > 0;
-    // cur.x / cur.y live in page px; the viewport position is cur.y - scrollY, so between slides the knot scrolls
-    // exactly like the content around it.
-    const tg = inRoom
-      ? { x: col.left + col.width / 2, y: col.top + scrollY + col.height / 2, a: 0 }
-      : spot();
-    if (cur.x === null) { cur.x = tg.x; cur.y = tg.y; }
-    const slide = inRoom ? k : reduce ? 1 : 1 - Math.exp(-dt * SLIDE_EASE);
-    cur.x += (tg.x - cur.x) * slide;
-    cur.y += (tg.y - cur.y) * slide;
-    cur.scale += ((inRoom ? 1 : STAGE_SCALE + (PAGE_SCALE - STAGE_SCALE) * tg.a) - cur.scale) * k;
-    cur.room += ((inRoom ? 1 : 0) - cur.room) * k;
-    cur.a += (tg.a - cur.a) * k;
-    aim(cur.x, cur.y - scrollY);
+    if (reduce || !scrolling || cur.x === null) {
+      const tg = spot(), ty = tg.y - scrollY;
+      if (cur.x === null) { cur.x = tg.x; cur.y = ty; }
+      const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
+      // Flying into or out of a room is quick; gliding between sections is slower.
+      const slide = reduce ? 1 : tg.room !== Math.round(cur.room) ? k : 1 - Math.exp(-dt * SLIDE_EASE);
+      cur.x += (tg.x - cur.x) * slide;
+      cur.y += (ty - cur.y) * slide;
+      cur.scale += (tg.scale - cur.scale) * k;
+      cur.room += (tg.room - cur.room) * k;
+      cur.a += (tg.a - cur.a) * k;
+    }
+    aim(cur.x, cur.y);
     knot.scale.setScalar(cur.scale);
     renderer.domElement.style.opacity = String(1 - PAGE_DIM * cur.a);
 
@@ -159,8 +168,8 @@ async function boot() {
     floor.material.opacity = cur.room;
     helpers.forEach((hp) => { hp.visible = cur.room > 0.6; });
 
-    // Sway like three.js' instancing/scatter example; scrolling pushes the clock forward.
-    const time = (reduce ? 0 : t / 1000) + eased * SCROLL_SPIN;
+    // Sway like three.js' instancing/scatter example, on time alone.
+    const time = reduce ? 0 : t / 1000;
     knot.rotation.x = Math.sin(time / 4);
     knot.rotation.y = Math.sin(time / 2);
     renderer.render(scene, camera);

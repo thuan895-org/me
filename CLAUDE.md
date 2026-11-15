@@ -5,7 +5,7 @@ Personal portfolio site for Nguyen Van Thuan (software engineer, Da Nang). Full 
 ## Stack
 - Plain static site: `index.html`, `assets/css/style.css`, `assets/js/{content,main,stage-fx}.js`, plus the ES module `assets/js/room-3d.js`.
 - No framework, no bundler, no npm dependencies. Do not introduce a build step unless the user asks.
-- One approved exception: three.js, pinned to `0.160.0`, loaded from jsDelivr through the importmap in `index.html`. Only `room-3d.js` uses it: one viewport-fixed canvas with a torus knot that sways behind the extensions, rests beside the section being read and slides down the page to the next one (dimmed behind the text), and flies into a room's left column. The CSS room tubes are the fallback when WebGL or the CDN is unavailable.
+- One approved exception: three.js, pinned to `0.160.0`, loaded from jsDelivr through the importmap in `index.html`. Only `room-3d.js` uses it: one viewport-fixed canvas with a torus knot that sways behind the extensions, rests beside the section being read (dimmed behind the text), and flies into a room's left column. While the page scrolls it holds still on screen and never reads the scroll position; SETTLE_DELAY (500 ms) after scrolling stops it glides to the spot for what is on screen, in rooms too. The CSS room tubes are the fallback when WebGL or the CDN is unavailable.
 - Preview: `npx serve .` or `python3 -m http.server`.
 
 ## Rules
