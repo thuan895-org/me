@@ -34,7 +34,7 @@ async function boot() {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 1, 200);
 
-  // The rig moves as one: knot at its origin, panels behind it, floor below.
+  // One rig: knot at the origin, panels behind it, floor below.
   const rig = new THREE.Group();
   scene.add(rig);
 
@@ -69,7 +69,9 @@ async function boot() {
   );
   rig.add(knot);
 
-  // Camera looks straight at the rig plane (z = 0); its distance keeps a room's rig the size of the left column.
+  // The rig stays at the origin and the camera looks straight at it; its distance keeps a room's rig the size of
+  // the left column. To place the rig on screen we shift the projection centre (setViewOffset) instead of moving
+  // the rig, so the knot and the panels behind it share one vanishing point and stay lined up anywhere.
   let w = 1, h = 1;
   function fit() {
     w = stage.clientWidth; h = stage.clientHeight;
@@ -79,13 +81,12 @@ async function boot() {
     camera.aspect = w / h;
     camera.position.set(0, 0, -(h * upp) / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))));
     camera.lookAt(0, 0, 0);
-    camera.updateProjectionMatrix();
   }
 
-  // A point on the stage (px) to the matching point on the rig plane.
-  function onPlane(x, y) {
-    const v = new THREE.Vector3((x / w) * 2 - 1, -(y / h) * 2 + 1, 0.5).unproject(camera).sub(camera.position).normalize();
-    return camera.position.clone().addScaledVector(v, -camera.position.z / v.z);
+  // Draw the origin at stage pixel (x, y).
+  function aim(x, y) {
+    camera.setViewOffset(w, h, w / 2 - x, h / 2 - y, w, h);
+    camera.updateProjectionMatrix();
   }
 
   let world = null;
@@ -106,12 +107,12 @@ async function boot() {
     const room = document.body.dataset.room;
     const sr = stage.getBoundingClientRect(), col = holder.getBoundingClientRect();
     if (room && col.width) {
-      return { pos: onPlane(col.left - sr.left + col.width / 2, col.top - sr.top + col.height / 2), scale: 1, room: 1 };
+      return { x: col.left - sr.left + col.width / 2, y: col.top - sr.top + col.height / 2, scale: 1, room: 1 };
     }
-    return { pos: onPlane(w / 2, h * 0.42), scale: STAGE_SCALE, room: 0 };
+    return { x: w / 2, y: h * 0.42, scale: STAGE_SCALE, room: 0 };
   }
 
-  const cur = { pos: null, scale: STAGE_SCALE, room: 0 };
+  const cur = { x: null, y: 0, scale: STAGE_SCALE, room: 0 };
   let spin = scrollY * SCROLL_SPIN, last = 0;
 
   function frame(t) {
@@ -120,10 +121,12 @@ async function boot() {
     setWorld(document.body.dataset.room || "stage");
     const tg = target();
     const k = reduce ? 1 : 1 - Math.exp(-dt * 4);
-    cur.pos = cur.pos ? cur.pos.lerp(tg.pos, k) : tg.pos;
+    if (cur.x === null) { cur.x = tg.x; cur.y = tg.y; }
+    cur.x += (tg.x - cur.x) * k;
+    cur.y += (tg.y - cur.y) * k;
     cur.scale += (tg.scale - cur.scale) * k;
     cur.room += (tg.room - cur.room) * k;
-    rig.position.copy(cur.pos);
+    aim(cur.x, cur.y);
     knot.scale.setScalar(cur.scale);
 
     // Panels and floor only belong to a room: they come up as the knot settles in.
