@@ -73,7 +73,7 @@ async function boot() {
 
   const knot = new THREE.Mesh(
     new THREE.TorusKnotGeometry(1.5, 0.5, 200, 16),
-    new THREE.MeshStandardMaterial({ color: token("--white-light"), roughness: 0, metalness: 0 })
+    new THREE.MeshStandardMaterial({ color: token("--lamp"), roughness: 0, metalness: 0 })
   );
   rig.add(knot);
 
@@ -105,7 +105,7 @@ async function boot() {
     knot.geometry.dispose();
     knot.geometry = new THREE.TorusKnotGeometry(1.5, 0.5, 200, 16, m.p, m.q);
     lights.forEach((l, i) => {
-      l.color.set(token(i === 1 ? m.mid : "--white-light"));
+      l.color.set(token(i === 1 ? m.mid : "--lamp"));
       l.intensity = i === 1 ? m.midI : m.side;
     });
   }
@@ -169,7 +169,14 @@ async function boot() {
   addEventListener("resize", () => { fit(); if (reduce) frame(0); });
   fit();
   holder.classList.add("has-3d");
-  return { frame, renderer };
+  // Theme switch: re-read the colours that come from CSS tokens.
+  function retheme() {
+    floor.material.color.set(token("--panel"));
+    knot.material.color.set(token("--lamp"));
+    world = null; // setWorld() re-colours the lights on the next frame
+  }
+
+  return { frame, renderer, retheme };
 }
 
 boot().then((app) => {
@@ -181,5 +188,6 @@ boot().then((app) => {
   addEventListener("scroll", () => { if (reduce) app.frame(0); }, { passive: true });
   new MutationObserver(() => { if (reduce) app.frame(0); }).observe(document.body, { attributes: true, attributeFilter: ["data-room"] });
   document.addEventListener("motionchange", () => { reduce = document.documentElement.dataset.motion === "off"; run(); });
+  document.addEventListener("themechange", () => { app.retheme(); if (reduce) app.frame(0); });
   run();
 }).catch(() => {}); // no WebGL or CDN unreachable: the CSS tubes remain

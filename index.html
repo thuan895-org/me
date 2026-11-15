@@ -10,11 +10,13 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://www.thuanday.blog/">
 <link rel="canonical" href="https://www.thuanday.blog/">
-<meta name="theme-color" content="#040708">
+<meta name="theme-color" content="#f3f6f4">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="assets/css/style.css">
+<script>/* Theme before first paint: light unless the visitor picked dark (Theme button, main.js). */
+try { if (localStorage.getItem("theme") === "dark") document.documentElement.dataset.theme = "dark"; } catch (e) {}</script>
 </head>
 <body>
 <section class="stage" id="stage" aria-label="Stage">
@@ -27,7 +29,8 @@
     </div>
     <div class="top-actions">
       <button class="btn-outline hide-sm" type="button" id="to-contact" data-i18n="contactBtn"></button>
-      <button class="motion" type="button" id="motion" aria-pressed="true"><span class="motion-dot" aria-hidden="true"></span><span class="motion-text" data-i18n="motion"></span></button>
+      <button class="toggle" type="button" id="theme" aria-pressed="false"><span class="toggle-dot" aria-hidden="true"></span><span class="toggle-text" data-i18n="dark"></span></button>
+      <button class="toggle" type="button" id="motion" aria-pressed="true"><span class="toggle-dot" aria-hidden="true"></span><span class="toggle-text" data-i18n="motion"></span></button>
       <div class="lang" role="group" aria-label="Language">
         <button type="button" data-lang="en" aria-pressed="true">EN</button>
         <button type="button" data-lang="vi" aria-pressed="false">VI</button>

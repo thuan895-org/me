@@ -11,7 +11,7 @@ Personal portfolio site for Nguyen Van Thuan (software engineer, Da Nang). Full 
 ## Rules
 - All user-facing copy lives in `assets/js/content.js` under `T.en` and `T.vi`. Every text change must be made in BOTH languages. The user's native language is Vietnamese; talk to him in Vietnamese.
 - Script load order is fixed: content.js → main.js → stage-fx.js (globals `ROOMS`, `EXT`, `T`), then the importmap and the module room-3d.js.
-- Colors only via the CSS tokens in `:root` of style.css. Single dark theme by design. One accent: `--signal` (#43f5ac).
+- Colors only via the CSS tokens in style.css: light theme in `:root` (the default), dark theme in `html[data-theme="dark"]`. Every token must exist in both. The Dark switch in the topbar flips `html[data-theme]`, remembers it in localStorage `theme`, and fires `themechange`; canvases (stage-fx.js, room-3d.js) read their colours from the tokens and re-read them on that event. One accent: `--signal` (#0a8f5c light / #43f5ac dark).
 - Fonts: Big Shoulders Display (display), IBM Plex Sans (body), IBM Plex Mono (labels/data).
 - Concept is a telecom switchboard: extensions EXT 101/102/103 = rooms `migration`, `cpaas`, `ai`, routed by `location.hash`. Keep this vocabulary consistent.
 - Design is inspired by the staging of adidas CHILE20 but must never use adidas/Foot Locker logos, names, marks, colors or imagery.

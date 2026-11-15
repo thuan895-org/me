@@ -62,23 +62,28 @@ Nguyên tắc: **nhà tuyển dụng lướt 30 giây vẫn thấy đủ** — t
 
 ### Design tokens (`assets/css/style.css`, khối `:root`)
 
-| Token | Giá trị | Dùng cho |
-|---|---|---|
-| `--void` | `#040708` | Nền trang |
-| `--stage` | `#071012` | Nền sân khấu |
-| `--panel` | `#0b1618` | Thẻ (chứng chỉ) |
-| `--line` | `#1c2b2d` | Viền, đường kẻ |
-| `--ink` | `#e9f2ef` | Chữ chính |
-| `--mute` | `#84948f` | Chữ phụ, nhãn |
-| `--signal` | `#43f5ac` | **Màu nhấn duy nhất** — xanh tín hiệu |
-| `--white-light` | `#f4fbf8` | Ống đèn trắng |
+Trang có hai theme: **light (mặc định)** trong `:root`, và **dark** trong `html[data-theme="dark"]`. Nút **Dark / Tối** trên thanh trên cùng đổi theme và nhớ lựa chọn trong `localStorage` (`theme`); một đoạn script nhỏ trong `<head>` đặt theme trước khi trang hiện để không bị nháy.
+
+| Token | Light | Dark | Dùng cho |
+|---|---|---|---|
+| `--void` | `#f3f6f4` | `#040708` | Nền trang |
+| `--stage` | `#e8eeeb` | `#071012` | Nền sân khấu |
+| `--panel` | `#ffffff` | `#0b1618` | Thẻ, sàn 3D |
+| `--line` | `#d2dcd8` | `#1c2b2d` | Viền, đường kẻ |
+| `--ink` | `#0e1b18` | `#e9f2ef` | Chữ chính |
+| `--mute` | `#5c6b67` | `#84948f` | Chữ phụ, nhãn |
+| `--signal` | `#0a8f5c` | `#43f5ac` | **Màu nhấn duy nhất** — xanh tín hiệu |
+| `--white-light` | `#1d2b27` | `#f4fbf8` | Ống đèn hai bên (tối trên nền sáng, sáng trên nền tối) |
+| `--lamp` | `#f4fbf8` | `#f4fbf8` | Đèn và khối nút xoắn 3D |
+
+Ngoài ra còn các token phụ: `--text-2`, `--text-3`, `--card`, `--glass`, `--shade`, `--scan`, `--stage-glow-*`, `--room-stage-*`, các bộ ba `--*-rgb` để dùng trong `rgba()`, và `--glow` (độ mạnh quầng sáng: 1 ở dark, 0.35 ở light).
 
 Font:
 - `--font-display`: **Big Shoulders Display** 900 — tên, tiêu đề (in hoa)
 - `--font-body`: **IBM Plex Sans** — chữ đọc
 - `--font-mono`: **IBM Plex Mono** — nhãn in hoa nhỏ, số EXT, ngày tháng
 
-Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải lấy từ token, không viết mã màu rời trong component (trừ vài `rgba` của chính `--signal`/`--white-light`).
+Quy tắc: mọi màu phải lấy từ token, kể cả màu vẽ trên canvas (`stage-fx.js`, `room-3d.js` đọc token và đọc lại khi có sự kiện `themechange`). Thêm token mới thì phải khai báo ở **cả hai** theme.
 
 ---
 

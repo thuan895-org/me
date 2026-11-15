@@ -5,6 +5,14 @@
   const ctx = cv.getContext("2d");
   let reduce = document.documentElement.dataset.motion === "off"; // set by main.js, toggled by the Motion button
   let running = false;
+
+  // Colours come from the CSS tokens of the current theme; re-read on "themechange".
+  let C = {};
+  function colours() {
+    const cs = getComputedStyle(document.documentElement), v = (n) => cs.getPropertyValue(n).trim();
+    C = { signal: v("--signal-rgb"), light: v("--light-rgb"), dust: v("--dust-rgb"), scan: v("--scan"), glow: parseFloat(v("--glow")) || 1 };
+  }
+  colours();
   let w = 0, h = 0, dpr = 1, dust = [], nodes = [], edges = [];
 
   function size() {
@@ -29,23 +37,23 @@
 
   // EXT 101 · the past: legacy CRT, grain and a slow rolling scan band.
   function legacy(t) {
-    ctx.fillStyle = "rgba(4,7,8,0.22)";
+    ctx.fillStyle = C.scan;
     for (let y = 0; y < h; y += 3) ctx.fillRect(0, y, w, 1);
     const n = Math.round((w * h) / 700);
     for (let i = 0; i < n; i++) {
-      ctx.fillStyle = `rgba(220,240,232,${Math.random() * 0.09})`;
+      ctx.fillStyle = `rgba(${C.dust},${Math.random() * 0.09})`;
       ctx.fillRect(Math.random() * w, Math.random() * h, 1, 1);
     }
     const band = (t / 9) % (h + 160) - 80;
     const g = ctx.createLinearGradient(0, band - 80, 0, band + 80);
-    g.addColorStop(0, "rgba(244,251,248,0)"); g.addColorStop(0.5, "rgba(244,251,248,0.035)"); g.addColorStop(1, "rgba(244,251,248,0)");
+    g.addColorStop(0, `rgba(${C.light},0)`); g.addColorStop(0.5, `rgba(${C.light},0.035)`); g.addColorStop(1, `rgba(${C.light},0)`);
     ctx.fillStyle = g; ctx.fillRect(0, band - 80, w, 160);
   }
 
   // EXT 102 · the present: live voice traces on an oscilloscope.
   function scope(t) {
     for (let k = 0; k < 3; k++) {
-      ctx.strokeStyle = `rgba(67,245,172,${0.32 - k * 0.09})`;
+      ctx.strokeStyle = `rgba(${C.signal},${0.32 - k * 0.09})`;
       ctx.lineWidth = 1.5 - k * 0.3;
       ctx.beginPath();
       for (let x = 0; x <= w; x += 4) {
@@ -59,21 +67,21 @@
 
   // EXT 103 · the future: clean grid, agents passing calls between nodes.
   function network(t) {
-    ctx.strokeStyle = "rgba(244,251,248,0.035)"; ctx.lineWidth = 1;
+    ctx.strokeStyle = `rgba(${C.light},0.035)`; ctx.lineWidth = 1;
     ctx.beginPath();
     for (let x = 0; x < w; x += 48) { ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); }
     for (let y = 0; y < h; y += 48) { ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); }
     ctx.stroke();
-    ctx.strokeStyle = "rgba(244,251,248,0.12)";
+    ctx.strokeStyle = `rgba(${C.light},0.12)`;
     ctx.beginPath();
     for (const [i, j] of edges) { ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); }
     ctx.stroke();
     edges.forEach(([i, j], e) => {
       const k = (t / 1800 + e * 0.37) % 1, a = nodes[i], b = nodes[j];
-      ctx.fillStyle = "rgba(67,245,172,0.8)";
+      ctx.fillStyle = `rgba(${C.signal},0.8)`;
       ctx.beginPath(); ctx.arc(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k, 1.8, 0, Math.PI * 2); ctx.fill();
     });
-    ctx.fillStyle = "rgba(244,251,248,0.55)";
+    ctx.fillStyle = `rgba(${C.light},0.55)`;
     for (const p of nodes) { ctx.beginPath(); ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2); ctx.fill(); }
   }
 
@@ -97,15 +105,15 @@
     if (world) world(t);
     for (const p of dust) {
       if (!reduce) { p.y -= p.v; p.x += Math.sin((t / 4000) + p.y / 60) * 0.08; if (p.y < -4) { p.y = h + 4; p.x = Math.random() * w; } }
-      ctx.fillStyle = `rgba(220,240,232,${p.a})`;
+      ctx.fillStyle = `rgba(${C.dust},${p.a * (0.5 + 0.5 * C.glow)})`;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
     }
     for (const tb of tubes()) {
       const len = Math.min(h - tb.top, 160);
       if (len <= 4) continue;
       const g = ctx.createLinearGradient(0, tb.top, 0, tb.top + len);
-      const col = tb.green ? "67,245,172" : "244,251,248";
-      g.addColorStop(0, `rgba(${col},0.42)`);
+      const col = tb.green ? C.signal : C.light;
+      g.addColorStop(0, `rgba(${col},${0.42 * (0.4 + 0.6 * C.glow)})`);
       g.addColorStop(1, `rgba(${col},0)`);
       ctx.fillStyle = g;
       const wob = reduce ? 0 : Math.sin(t / 700 + tb.x) * 1.5;
@@ -126,6 +134,7 @@
   size();
   addEventListener("resize", size);
   addEventListener("hashchange", () => { if (reduce) setTimeout(() => frame(0), 50); });
+  document.addEventListener("themechange", () => { colours(); if (reduce) frame(0); });
   document.addEventListener("motionchange", () => { reduce = document.documentElement.dataset.motion === "off"; start(); });
   start();
 })();

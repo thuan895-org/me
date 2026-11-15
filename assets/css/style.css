@@ -1,5 +1,41 @@
-/* Layout: one dark "switchboard" stage with three lit extensions; picking one shifts the stage into that room. CV below for skimmers. */
+/* Layout: one "switchboard" stage with three lit extensions; picking one shifts the stage into that room. CV below for skimmers. */
+/* Themes: light is the default; html[data-theme="dark"] (Theme button, main.js) switches to the dark set.
+   Every colour on the page and in the canvases comes from these tokens. *-rgb tokens are "r, g, b" triplets for
+   rgba(); --glow scales halos (strong light on dark, faint shadow on light). */
 :root {
+  color-scheme: light;
+  --void: #f3f6f4;
+  --stage: #e8eeeb;
+  --panel: #ffffff;
+  --line: #d2dcd8;
+  --ink: #0e1b18;
+  --mute: #5c6b67;
+  --signal: #0a8f5c;
+  --signal-soft: rgba(10, 143, 92, 0.12);
+  --white-light: #1d2b27;
+  --lamp: #f4fbf8;
+  --text-2: #2f3f3b;
+  --text-3: #44544f;
+  --card: rgba(255, 255, 255, 0.9);
+  --glass: rgba(255, 255, 255, 0.82);
+  --shade: rgba(243, 246, 244, 0.6);
+  --scan: rgba(14, 27, 24, 0.05);
+  --stage-glow-a: #d3e9df;
+  --stage-glow-b: #e1ece7;
+  --room-stage-a: #cbe5d9;
+  --room-stage-b: #eaf1ee;
+  --signal-rgb: 10, 143, 92;
+  --light-rgb: 29, 43, 39;
+  --ink-rgb: 14, 27, 24;
+  --dust-rgb: 60, 80, 74;
+  --glow: 0.35;
+  --font-display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
+  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+}
+html[data-theme="dark"] {
   color-scheme: dark;
   --void: #040708;
   --stage: #071012;
@@ -8,15 +44,25 @@
   --ink: #e9f2ef;
   --mute: #84948f;
   --signal: #43f5ac;
-  --signal-soft: rgba(67, 245, 172, 0.16);
+  --signal-soft: rgba(var(--signal-rgb), 0.16);
   --white-light: #f4fbf8;
-  --font-display: "Big Shoulders Display", "Arial Narrow", "Roboto Condensed", sans-serif;
-  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --gutter-l: max(16px, env(safe-area-inset-left, 0px));
-  --gutter-r: max(16px, env(safe-area-inset-right, 0px));
+  --text-2: var(--text-2);
+  --text-3: var(--text-3);
+  --card: var(--card);
+  --glass: var(--glass);
+  --shade: rgba(4, 7, 8, 0.55);
+  --scan: rgba(4, 7, 8, 0.22);
+  --stage-glow-a: #0f2421;
+  --stage-glow-b: #0a1a1a;
+  --room-stage-a: #12302a;
+  --room-stage-b: #061513;
+  --signal-rgb: 67, 245, 172;
+  --light-rgb: 244, 251, 248;
+  --ink-rgb: 233, 242, 239;
+  --dust-rgb: 220, 240, 232;
+  --glow: 1;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; }* { box-sizing: border-box; }
 body {
   margin: 0;
   background: var(--void);
@@ -43,8 +89,8 @@ button { font: inherit; color: inherit; }
   min-height: min(800px, 92svh);
   overflow: hidden;
   background:
-    radial-gradient(60% 38% at 50% 100%, #0f2421 0%, transparent 70%),
-    radial-gradient(50% 60% at 50% 30%, #0a1a1a 0%, transparent 75%),
+    radial-gradient(60% 38% at 50% 100%, var(--stage-glow-a) 0%, transparent 70%),
+    radial-gradient(50% 60% at 50% 30%, var(--stage-glow-b) 0%, transparent 75%),
     var(--stage);
   display: grid;
   grid-template-rows: auto 1fr auto;
@@ -53,7 +99,7 @@ button { font: inherit; color: inherit; }
 .stage::after {
   content: "";
   position: absolute; inset: auto 0 0 0; height: 34%;
-  background: linear-gradient(to bottom, transparent, rgba(4, 7, 8, 0.55));
+  background: linear-gradient(to bottom, transparent, var(--shade));
   pointer-events: none;
 }
 #fx { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -81,19 +127,20 @@ button { font: inherit; color: inherit; }
   transition: background 0.2s, color 0.2s;
 }
 .btn-outline:hover { background: var(--ink); color: var(--void); }
-.motion {
+/* Topbar switches (Motion, Dark) */
+.toggle {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
   background: none; border: 0; padding: 6px; cursor: pointer; color: var(--mute);
 }
-.motion-dot { width: 22px; height: 12px; border: 1px solid var(--mute); border-radius: 6px; position: relative; flex: none; }
-.motion-dot::after {
+.toggle-dot { width: 22px; height: 12px; border: 1px solid var(--mute); border-radius: 6px; position: relative; flex: none; }
+.toggle-dot::after {
   content: ""; position: absolute; top: 2px; left: 2px; width: 6px; height: 6px; border-radius: 50%;
   background: var(--mute); transition: transform 0.2s, background 0.2s;
 }
-.motion[aria-pressed="true"] { color: var(--ink); }
-.motion[aria-pressed="true"] .motion-dot { border-color: var(--signal); }
-.motion[aria-pressed="true"] .motion-dot::after { background: var(--signal); transform: translateX(10px); box-shadow: 0 0 6px var(--signal); }
+.toggle[aria-pressed="true"] { color: var(--ink); }
+.toggle[aria-pressed="true"] .toggle-dot { border-color: var(--signal); }
+.toggle[aria-pressed="true"] .toggle-dot::after { background: var(--signal); transform: translateX(10px); box-shadow: 0 0 6px var(--signal); }
 .lang { display: flex; gap: 2px; }
 .lang button {
   font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em;
@@ -124,11 +171,11 @@ button { font: inherit; color: inherit; }
 .tube i {
   display: block; width: 6px; border-radius: 3px;
   background: var(--white-light);
-  box-shadow: 0 0 12px rgba(244, 251, 248, 0.6), 0 0 34px rgba(244, 251, 248, 0.25);
+  box-shadow: 0 0 12px rgba(var(--light-rgb), calc(0.6 * var(--glow))), 0 0 34px rgba(var(--light-rgb), calc(0.25 * var(--glow)));
 }
 .tube i:nth-child(2) {
   width: 14px; background: var(--signal);
-  box-shadow: 0 0 16px var(--signal), 0 0 46px rgba(67, 245, 172, 0.45);
+  box-shadow: 0 0 16px var(--signal), 0 0 46px rgba(var(--signal-rgb), 0.45);
 }
 .tube i:nth-child(3) { height: 58%; align-self: flex-end; opacity: 0.85; }
 .exhibit:nth-child(2) .tube { height: clamp(200px, 36svh, 340px); }
@@ -139,8 +186,8 @@ button { font: inherit; color: inherit; }
   position: absolute; left: 50%; top: 42%;
   width: clamp(76px, 15vw, 128px); aspect-ratio: 1; max-width: 100%;
   transform: translate(-50%, -50%);
-  background: rgba(7, 16, 18, 0.82);
-  border: 1px solid rgba(233, 242, 239, 0.22);
+  background: var(--glass);
+  border: 1px solid rgba(var(--ink-rgb), 0.22);
   backdrop-filter: blur(6px);
   display: grid; place-items: center;
   animation: hover 5s ease-in-out infinite;
@@ -195,7 +242,7 @@ button { font: inherit; color: inherit; }
 .room-light .glyph { width: clamp(110px, 18vw, 170px); top: 46%; }
 .room-card {
   min-width: 0; max-width: 600px;
-  background: rgba(8, 18, 20, 0.86);
+  background: var(--card);
   border: 1px solid var(--line);
   --card-pad: clamp(20px, 3.5vw, 36px);
   padding: var(--card-pad);
@@ -218,7 +265,7 @@ button { font: inherit; color: inherit; }
 }
 .room-lede { margin: 0; color: var(--ink); max-width: 60ch; }
 .room-points { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-.room-points li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 10px; color: #c9d6d2; }
+.room-points li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 10px; color: var(--text-2); }
 .room-points li::before { content: ""; width: 8px; height: 2px; background: var(--signal); margin-top: 0.8em; }
 .diff { margin: 0; border: 1px solid var(--line); font-family: var(--font-mono); font-size: 13px; }
 .diff figcaption {
@@ -244,9 +291,9 @@ body[data-room] .diff-line { opacity: 1; transform: none; }
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   font-family: var(--font-mono); font-size: 12px; padding: 4px 9px;
-  border: 1px solid var(--line); color: #c9d6d2;
+  border: 1px solid var(--line); color: var(--text-2);
 }
-.chip.lit { border-color: rgba(67, 245, 172, 0.45); color: var(--signal); background: var(--signal-soft); }
+.chip.lit { border-color: rgba(var(--signal-rgb), 0.45); color: var(--signal); background: var(--signal-soft); }
 .chip-group { display: grid; gap: 8px; }
 .room-nav { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 4px; }
 .btn-solid {
@@ -262,27 +309,27 @@ body[data-room] .room { opacity: 1; pointer-events: auto; }
 body[data-room] .room-card { transform: none; }
 body[data-room] .stage {
   background:
-    radial-gradient(45% 55% at 28% 55%, rgba(67, 245, 172, 0.2) 0%, transparent 70%),
-    radial-gradient(60% 38% at 50% 100%, #12302a 0%, transparent 70%),
-    #061513;
+    radial-gradient(45% 55% at 28% 55%, rgba(var(--signal-rgb), 0.2) 0%, transparent 70%),
+    radial-gradient(60% 38% at 50% 100%, var(--room-stage-a) 0%, transparent 70%),
+    var(--room-stage-b);
 }
 .nameplate { transition: opacity 0.4s; }
 
 /* Worlds: past (legacy CRT), present (live line, the default above), future (clean light) */
 body[data-room="migration"] .stage {
   background:
-    radial-gradient(45% 55% at 28% 55%, rgba(244, 251, 248, 0.07) 0%, transparent 70%),
+    radial-gradient(45% 55% at 28% 55%, rgba(var(--light-rgb), 0.07) 0%, transparent 70%),
     var(--void);
 }
-body[data-room="migration"] .room-light .tube i:nth-child(2) { background: var(--mute); box-shadow: 0 0 14px rgba(244, 251, 248, 0.18); }
+body[data-room="migration"] .room-light .tube i:nth-child(2) { background: var(--mute); box-shadow: 0 0 14px rgba(var(--light-rgb), 0.18); }
 body[data-room="migration"] .room-light .tube i { opacity: 0.7; }
 body[data-room="ai"] .stage {
   background:
-    radial-gradient(55% 45% at 28% 20%, rgba(244, 251, 248, 0.1) 0%, transparent 70%),
-    radial-gradient(45% 55% at 28% 60%, rgba(67, 245, 172, 0.1) 0%, transparent 70%),
+    radial-gradient(55% 45% at 28% 20%, rgba(var(--light-rgb), 0.1) 0%, transparent 70%),
+    radial-gradient(45% 55% at 28% 60%, rgba(var(--signal-rgb), 0.1) 0%, transparent 70%),
     var(--stage);
 }
-body[data-room="ai"] .room-light .tube i { box-shadow: 0 0 18px rgba(244, 251, 248, 0.75), 0 0 60px rgba(244, 251, 248, 0.3); }
+body[data-room="ai"] .room-light .tube i { box-shadow: 0 0 18px rgba(var(--light-rgb), calc(0.75 * var(--glow))), 0 0 60px rgba(var(--light-rgb), calc(0.3 * var(--glow))); }
 
 /* 3D hero (room-3d.js): one canvas fixed to the viewport, above the stage background and ambient canvas, below the
    extensions and the page text, so the knot can follow the reader down. It stands in for the room's CSS tubes. */
@@ -296,7 +343,7 @@ main { position: relative; z-index: 2; }
 }
 .sweep::before {
   content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 45%;
-  background: linear-gradient(90deg, transparent, var(--signal-soft) 40%, rgba(67, 245, 172, 0.35) 50%, var(--signal-soft) 60%, transparent);
+  background: linear-gradient(90deg, transparent, var(--signal-soft) 40%, rgba(var(--signal-rgb), 0.35) 50%, var(--signal-soft) 60%, transparent);
   transform: translateX(-110%);
 }
 .sweep.run::before { animation: sweep 0.75s cubic-bezier(.5,0,.3,1); }
@@ -322,7 +369,7 @@ body[data-room] .room-light .glyph svg .solid { animation: patch 0.4s 1.4s backw
   font-family: var(--font-display); font-weight: 900; text-transform: uppercase;
   font-size: clamp(32px, 5vw, 48px); line-height: 1; margin: 0;
 }
-.summary { font-size: 18px; line-height: 1.6; max-width: 62ch; margin: 0; color: #d6e2de; }
+.summary { font-size: 18px; line-height: 1.6; max-width: 62ch; margin: 0; color: var(--text-2); }
 .summary b { color: var(--ink); font-weight: 600; }
 .log { display: grid; border-top: 1px solid var(--line); }
 .log-row {
@@ -333,7 +380,7 @@ body[data-room] .room-light .glyph svg .solid { animation: patch 0.4s 1.4s backw
 .log-what { display: grid; gap: 4px; min-width: 0; }
 .log-role { font-weight: 600; font-size: 17px; }
 .log-org { color: var(--signal); font-family: var(--font-mono); font-size: 13px; }
-.log-note { color: #b9c7c3; margin: 4px 0 0; max-width: 62ch; }
+.log-note { color: var(--text-3); margin: 4px 0 0; max-width: 62ch; }
 .certs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
 .cert { border: 1px solid var(--line); padding: 18px; display: grid; gap: 10px; align-content: start; background: var(--panel); }
 .cert-name { font-weight: 600; line-height: 1.35; }
@@ -470,7 +517,7 @@ a.contact-value:hover { color: var(--signal); }
   .tube { gap: 5px; }
   .tube i { width: 4px; }
   .tube i:nth-child(2) { width: 9px; }
-  .motion-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .toggle-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 /* Motion off: set by the Motion button (main.js); motion is on by default */
 html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after {

@@ -7,6 +7,7 @@ try { const s = localStorage.getItem("lang"); if (s === "vi" || s === "en") lang
 let reduce = false;
 try { const m = localStorage.getItem("motion"); if (m === "on" || m === "off") reduce = m === "off"; } catch (e) {}
 document.documentElement.dataset.motion = reduce ? "off" : "on";
+document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.documentElement).getPropertyValue("--void").trim();
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
@@ -17,6 +18,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-label]").forEach((el) => { el.setAttribute("aria-label", d[el.dataset.i18nLabel]); });
   document.querySelectorAll(".lang button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
   document.getElementById("motion").setAttribute("aria-pressed", String(!reduce));
+  document.getElementById("theme").setAttribute("aria-pressed", String(document.documentElement.dataset.theme === "dark"));
   document.getElementById("log").innerHTML = `
     <div class="cdr-head reveal" style="--i:0"><span class="label">${esc(d.cdr)}</span><span class="label">${d.log.length} ${esc(d.records)}</span></div>` + d.log.map((r, i) => {
     const head = `<span class="log-role">${esc(r.role)}</span><span class="log-org">${esc(r.org)}</span>`;
@@ -142,6 +144,17 @@ document.querySelectorAll(".lang button").forEach((b) => b.addEventListener("cli
   try { localStorage.setItem("lang", lang); } catch (e) {}
   applyLang();
 }));
+
+// Theme: light by default (set before paint by the inline script in <head>); the Dark switch flips it and remembers.
+// stage-fx.js and room-3d.js re-read their colours on "themechange".
+document.getElementById("theme").addEventListener("click", (e) => {
+  const dark = document.documentElement.dataset.theme !== "dark";
+  if (dark) document.documentElement.dataset.theme = "dark"; else delete document.documentElement.dataset.theme;
+  try { localStorage.setItem("theme", dark ? "dark" : "light"); } catch (err) {}
+  e.currentTarget.setAttribute("aria-pressed", String(dark));
+  document.querySelector('meta[name="theme-color"]').content = getComputedStyle(document.documentElement).getPropertyValue("--void").trim();
+  document.dispatchEvent(new Event("themechange"));
+});
 
 document.getElementById("motion").addEventListener("click", (e) => {
   reduce = !reduce;
