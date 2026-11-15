@@ -17,7 +17,7 @@ const WORLDS = {
   ai: { p: 2, q: 5, side: 6, mid: "--signal", midI: 5 }
 };
 const STAGE_SCALE = 2;    // the knot is bigger behind the extensions than in a room
-const PAGE_SCALE = 1.4;   // ...and a little smaller once it follows the reader down the page
+const PAGE_SCALE = 2.1;   // ...and a touch bigger once it follows the reader down the page
 const PAGE_DIM = 0.55;    // how much it fades behind the text
 const SCROLL_SPIN = 0.01; // seconds of sway per scrolled pixel
 

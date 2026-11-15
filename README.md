@@ -108,7 +108,7 @@ Quy tắc: trang chỉ có **một theme tối** (cố ý). Mọi màu phải l�
 ### Cảnh 3D (`room-3d.js`)
 - Ngoại lệ duy nhất cho quy tắc "không dependency": three.js `0.160.0` nạp từ jsDelivr qua importmap trong `index.html`. Không npm, không build.
 - Một canvas cố định theo màn hình (`.stage-3d`, `position: fixed`), nằm trên nền sân khấu và canvas bụi, dưới các máy nhánh và phần chữ (`main` có `z-index: 2`).
-- Scroll xuống: khối bị kéo lên theo trang một chút rồi trôi chậm về giữa màn hình (quán tính), nhỏ lại (`PAGE_SCALE`) và mờ đi (`PAGE_DIM`) để không che chữ.
+- Scroll xuống: khối bị kéo lên theo trang một chút rồi trôi chậm về giữa màn hình (quán tính), to hơn một chút (`PAGE_SCALE`) và mờ đi (`PAGE_DIM`) để không che chữ.
 - Ở sảnh: khối nút xoắn lắc qua lại phía sau các máy nhánh, kiểu xoay của ví dụ three.js instancing/scatter (`rotation.x = sin(t/4)`, `rotation.y = sin(t/2)`); scroll xuống thì đẩy nhanh chuyển động đó (`SCROLL_SPIN`).
 - Mở phòng: khối bay vào cột bên trái, nhỏ lại, 3 tấm đèn RectAreaLight (trắng · màu đường dây · trắng) và sàn bóng hiện lên quanh nó. Trên điện thoại cột trái bị ẩn nên khối ở lại giữa, sau thẻ nội dung.
 - Mỗi phòng một kiểu nút xoắn và độ sáng riêng (bảng `WORLDS`).
