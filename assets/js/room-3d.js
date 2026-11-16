@@ -181,7 +181,9 @@ async function boot() {
   // Every few frames the knot's silhouette is rendered small into an off-screen target and each letter's centre is
   // looked up in it. Letters are wrapped in <span class="cv"> on demand (again after a language switch).
   const COVER_TEXT = ".exhibit-ext, .exhibit-name, .exhibit-tag, .plate > span, .nameplate .role, .nameplate .label";
-  const MASK = 4; // mask is 1/MASK of the viewport in each direction
+  const MASK = 4;  // mask is 1/MASK of the viewport in each direction
+  const EARLY = 4; // px around each letter that also count, so it turns green a moment before the knot reaches it
+  const GRID = 4;  // sample points per side across each letter: any covered point turns the whole letter green
   const mask = new THREE.WebGLRenderTarget(1, 1);
   const maskMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
   let maskPx = new Uint8Array(4), tick = 0, lit = [];
@@ -218,10 +220,15 @@ async function boot() {
 
     // Read every letter's position first, then toggle classes, so the page is laid out only once.
     const spans = letters();
+    const covered = (x, y) => {
+      const mx = Math.floor(x / MASK), my = mh - 1 - Math.floor(y / MASK);
+      return mx >= 0 && my >= 0 && mx < mw && my < mh && maskPx[(my * mw + mx) * 4] > 127;
+    };
     const hits = spans.map((sp) => {
       const r = sp.getBoundingClientRect();
-      const mx = Math.floor((r.left + r.width / 2) / MASK), my = mh - 1 - Math.floor((r.top + r.height / 2) / MASK);
-      return mx >= 0 && my >= 0 && mx < mw && my < mh && maskPx[(my * mw + mx) * 4] > 127;
+      const x0 = r.left - EARLY, y0 = r.top - EARLY, sx = (r.width + 2 * EARLY) / (GRID - 1), sy = (r.height + 2 * EARLY) / (GRID - 1);
+      for (let i = 0; i < GRID; i++) for (let j = 0; j < GRID; j++) if (covered(x0 + i * sx, y0 + j * sy)) return true;
+      return false;
     });
     lit = spans.filter((sp, i) => { sp.classList.toggle("on", hits[i]); return hits[i]; });
   }

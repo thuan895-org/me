@@ -206,7 +206,7 @@ button { font: inherit; color: inherit; }
 }
 .exhibit-tag { font-family: var(--font-mono); font-size: 11px; color: var(--mute); }
 /* Letters the 3D knot is drawn over turn to the signal colour (room-3d.js toggles .on per letter) */
-.cv { transition: color 0.25s; }
+.cv { transition: color 0.15s; }
 .cv.on { color: var(--signal); }
 .exhibit:hover .glyph, .exhibit:focus-visible .glyph { border-color: var(--signal); box-shadow: 0 0 30px var(--signal-soft); }
 .floor:hover .exhibit:not(:hover) { opacity: 0.55; }
