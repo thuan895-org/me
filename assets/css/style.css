@@ -165,20 +165,20 @@ button { font: inherit; color: inherit; }
   transition: opacity 0.5s, filter 0.5s, transform 0.5s;
 }
 .tube {
-  position: relative; display: flex; gap: 7px; justify-content: center;
-  height: clamp(170px, 30svh, 290px);
+  position: relative; display: flex; gap: 10px; justify-content: center;
+  height: clamp(255px, 45svh, 435px);
 }
 .tube i {
-  display: block; width: 6px; border-radius: 3px;
+  display: block; width: 9px; border-radius: 4.5px;
   background: var(--white-light);
   box-shadow: 0 0 12px rgba(var(--light-rgb), calc(0.6 * var(--glow))), 0 0 34px rgba(var(--light-rgb), calc(0.25 * var(--glow)));
 }
 .tube i:nth-child(2) {
-  width: 14px; background: var(--signal);
+  width: 21px; background: var(--signal);
   box-shadow: 0 0 16px var(--signal), 0 0 46px rgba(var(--signal-rgb), 0.45);
 }
 .tube i:nth-child(3) { height: 58%; align-self: flex-end; opacity: 0.85; }
-.exhibit:nth-child(2) .tube { height: clamp(200px, 36svh, 340px); }
+.exhibit:nth-child(2) .tube { height: clamp(300px, 54svh, 510px); }
 .exhibit:nth-child(2) .tube i:nth-child(3) { height: 74%; }
 .exhibit:nth-child(3) .tube i:nth-child(1) { height: 66%; align-self: flex-end; }
 .exhibit:nth-child(3) .tube i:nth-child(3) { height: 100%; }
@@ -514,9 +514,9 @@ a.contact-value:hover { color: var(--signal); }
 }
 @media (max-width: 460px) {
   .exhibit-tag { display: none; }
-  .tube { gap: 5px; }
-  .tube i { width: 4px; }
-  .tube i:nth-child(2) { width: 9px; }
+  .tube { gap: 8px; }
+  .tube i { width: 6px; }
+  .tube i:nth-child(2) { width: 14px; }
   .toggle-text { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 }
 /* Motion off: set by the Motion button (main.js); motion is on by default */
