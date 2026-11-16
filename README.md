@@ -120,6 +120,7 @@ Quy tắc: mọi màu phải lấy từ token, kể cả màu vẽ trên canvas 
 - **Trong lúc cuộn** (chuột, touchpad, vuốt điện thoại kể cả quán tính) khối đứng yên trên màn hình và không đọc vị trí cuộn, nên không bị lệch hay giật so với chữ. **Ngừng cuộn `SETTLE_DELAY` (300 ms)** thì khối mới trượt êm tới chỗ đứng của phần đang hiện trên màn hình (`SLIDE_EASE`).
 - Trong phòng cũng vậy: cuộn xuống thì khối rời cột trái (3 tấm đèn và sàn tắt dần) để đi theo nội dung, cuộn lên đầu trang thì nó quay về giữa các tấm đèn.
 - Kiểu lắc chỉ chạy theo thời gian, không phụ thuộc thao tác cuộn.
+- Chữ ở sảnh (EXT 10x, tên máy nhánh, biển tên, các dòng bên dưới) được tách thành từng chữ cái (`<span class="cv">`). Vài khung hình một lần, `room-3d.js` vẽ bóng của khối ở độ phân giải 1/4 vào bộ nhớ và kiểm tra tâm từng chữ cái: chữ nào đang bị khối che thì chuyển sang màu `--signal` (`.cv.on`), hết che thì về màu cũ.
 - Ở sảnh: khối nút xoắn lắc qua lại phía sau các máy nhánh, kiểu xoay của ví dụ three.js instancing/scatter (`rotation.x = sin(t/4)`, `rotation.y = sin(t/2)`); scroll xuống thì đẩy nhanh chuyển động đó (`SCROLL_SPIN`).
 - Mở phòng: khối bay vào cột bên trái, nhỏ lại, 3 tấm đèn RectAreaLight (trắng · màu đường dây · trắng) và sàn bóng hiện lên quanh nó. Trên điện thoại cột trái bị ẩn nên khối ở lại giữa, sau thẻ nội dung.
 - Mỗi phòng một kiểu nút xoắn và độ sáng riêng (bảng `WORLDS`).

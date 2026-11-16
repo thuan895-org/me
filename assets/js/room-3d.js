@@ -174,6 +174,56 @@ async function boot() {
     knot.rotation.x = Math.sin(time / 4);
     knot.rotation.y = Math.sin(time / 2);
     renderer.render(scene, camera);
+    if (reduce || ++tick % 3 === 0) cover();
+  }
+
+  // Letters on the stage that the knot is drawn over turn green (.cv.on), and back when it moves off them.
+  // Every few frames the knot's silhouette is rendered small into an off-screen target and each letter's centre is
+  // looked up in it. Letters are wrapped in <span class="cv"> on demand (again after a language switch).
+  const COVER_TEXT = ".exhibit-ext, .exhibit-name, .exhibit-tag, .plate > span, .nameplate .role, .nameplate .label";
+  const MASK = 4; // mask is 1/MASK of the viewport in each direction
+  const mask = new THREE.WebGLRenderTarget(1, 1);
+  const maskMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  let maskPx = new Uint8Array(4), tick = 0, lit = [];
+
+  function letters() {
+    const out = [];
+    document.querySelectorAll(COVER_TEXT).forEach((el) => {
+      if (!el.querySelector(".cv")) {
+        const text = el.textContent;
+        el.textContent = "";
+        for (const ch of text) {
+          if (ch === " ") { el.append(" "); continue; }
+          const sp = document.createElement("span");
+          sp.className = "cv"; sp.textContent = ch;
+          el.append(sp);
+        }
+      }
+      out.push(...el.querySelectorAll(".cv"));
+    });
+    return out;
+  }
+
+  function cover() {
+    if (document.body.dataset.room) { lit.forEach((sp) => sp.classList.remove("on")); lit = []; return; }
+    const mw = Math.max(1, Math.round(w / MASK)), mh = Math.max(1, Math.round(h / MASK));
+    if (mask.width !== mw || mask.height !== mh) { mask.setSize(mw, mh); maskPx = new Uint8Array(mw * mh * 4); }
+    const floorShown = floor.visible;
+    floor.visible = false; helpers.forEach((hp) => { hp.userData.v = hp.visible; hp.visible = false; });
+    scene.overrideMaterial = maskMat;
+    renderer.setRenderTarget(mask); renderer.clear(); renderer.render(scene, camera); renderer.setRenderTarget(null);
+    scene.overrideMaterial = null;
+    floor.visible = floorShown; helpers.forEach((hp) => { hp.visible = hp.userData.v; });
+    renderer.readRenderTargetPixels(mask, 0, 0, mw, mh, maskPx);
+
+    // Read every letter's position first, then toggle classes, so the page is laid out only once.
+    const spans = letters();
+    const hits = spans.map((sp) => {
+      const r = sp.getBoundingClientRect();
+      const mx = Math.floor((r.left + r.width / 2) / MASK), my = mh - 1 - Math.floor((r.top + r.height / 2) / MASK);
+      return mx >= 0 && my >= 0 && mx < mw && my < mh && maskPx[(my * mw + mx) * 4] > 127;
+    });
+    lit = spans.filter((sp, i) => { sp.classList.toggle("on", hits[i]); return hits[i]; });
   }
 
   addEventListener("resize", () => { fit(); if (reduce) frame(0); });

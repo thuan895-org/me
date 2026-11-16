@@ -205,6 +205,9 @@ button { font: inherit; color: inherit; }
   font-size: clamp(17px, 2.6vw, 26px); line-height: 1; letter-spacing: 0.02em;
 }
 .exhibit-tag { font-family: var(--font-mono); font-size: 11px; color: var(--mute); }
+/* Letters the 3D knot is drawn over turn to the signal colour (room-3d.js toggles .on per letter) */
+.cv { transition: color 0.25s; }
+.cv.on { color: var(--signal); }
 .exhibit:hover .glyph, .exhibit:focus-visible .glyph { border-color: var(--signal); box-shadow: 0 0 30px var(--signal-soft); }
 .floor:hover .exhibit:not(:hover) { opacity: 0.55; }
 
@@ -222,7 +225,7 @@ button { font: inherit; color: inherit; }
   padding: 8px 18px 6px; text-wrap: balance;
   transform: skewX(-6deg);
 }
-.plate span { display: inline-block; transform: skewX(6deg); }
+.plate > span { display: inline-block; transform: skewX(6deg); }
 .role { font-size: 14px; color: var(--ink); opacity: 0.85; max-width: 60ch; }
 
 /* ---------- Room ---------- */
