@@ -182,17 +182,17 @@ button { font: inherit; color: inherit; }
 .exhibit:nth-child(2) .tube i:nth-child(3) { height: 74%; }
 .exhibit:nth-child(3) .tube i:nth-child(1) { height: 66%; align-self: flex-end; }
 .exhibit:nth-child(3) .tube i:nth-child(3) { height: 100%; }
-/* Breathing: each bar's top rises and falls within ±5% of its height, on its own rhythm (stopped when Motion is off) */
+/* Breathing: each bar's top rises and falls within ±3% of its height, on its own rhythm (stopped when Motion is off) */
 .floor .tube i {
   transform-origin: 50% 100%;
-  animation: breathe var(--breath, 4.8s) ease-in-out infinite;
+  animation: breathe var(--breath, 9.6s) ease-in-out infinite;
 }
-.floor .tube i:nth-child(1) { --breath: 4.8s; }
-.floor .tube i:nth-child(2) { --breath: 3.9s; }
-.floor .tube i:nth-child(3) { --breath: 5.6s; }
-.floor .exhibit:nth-child(2) .tube i { animation-delay: -1.3s; }
-.floor .exhibit:nth-child(3) .tube i { animation-delay: -2.7s; }
-@keyframes breathe { 0%, 100% { transform: scaleY(0.95); } 50% { transform: scaleY(1.05); } }
+.floor .tube i:nth-child(1) { --breath: 9.6s; }
+.floor .tube i:nth-child(2) { --breath: 7.8s; }
+.floor .tube i:nth-child(3) { --breath: 11.2s; }
+.floor .exhibit:nth-child(2) .tube i { animation-delay: -2.6s; }
+.floor .exhibit:nth-child(3) .tube i { animation-delay: -5.4s; }
+@keyframes breathe { 0%, 100% { transform: scaleY(0.97); } 50% { transform: scaleY(1.03); } }
 .glyph {
   position: absolute; left: 50%; top: 42%;
   width: clamp(76px, 15vw, 128px); aspect-ratio: 1; max-width: 100%;
